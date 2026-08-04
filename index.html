@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Amigos Challenge Cup 2026</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================
+         KOPFBEREICH
+         ===================================== -->
+
+    <header class="header">
+
+    <div class="tour-brand">
+        <img
+            src="Tour_Logo.png"
+            alt="Amigos Tour"
+        >
+    </div>
+
+    <div class="tournament-brand">
+
+        <div class="tournament-eyebrow">
+            AMIGOS TOUR
+        </div>
+
+        <div class="tournament-title">
+            CHALLENGE CUP
+        </div>
+
+        <div class="tournament-year">
+            2026
+        </div>
+
+    </div>
+
+    <div class="location">
+
+        <span class="location-label">
+            AUSTRIA
+        </span>
+
+        <span class="location-value">
+            STEIERMARK
+        </span>
+
+    </div>
+
+</header>
+
+
+
+    <!-- =====================================
+         NAVIGATION
+         ===================================== -->
+
+    <nav class="navigation">
+
+        <button
+            class="nav-button active"
+            id="nav-leaderboard"
+            type="button"
+        >
+            LEADERBOARD
+        </button>
+
+
+        <button
+            class="nav-button"
+            id="nav-results"
+            type="button"
+        >
+            RESULTS
+        </button>
+
+
+        <button
+            class="nav-button"
+            id="nav-news"
+            type="button"
+        >
+            NEWS
+        </button>
+
+    </nav>
+
+
+
+    <!-- =====================================
+         LEADERBOARD-BEREICH
+         ===================================== -->
+
+    <section
+        class="page-section"
+        id="leaderboard-section"
+    >
+
+
+        <!-- =================================
+             LEADERBOARD-KOPF
+             ================================= -->
+
+<section class="section-header">
+
+    <div class="live">
+        LIVE
+    </div>
+
+    <div class="section-title">
+        LEADERBOARD
+    </div>
+
+    <div
+        class="round"
+        id="round-info"
+    >
+        <span class="round-course">
+            ROUND 1 | GC LOIPERSDORF
+        </span>
+
+        <span class="round-thr">
+            THR 1
+        </span>
+    </div>
+
+</section>
+
+
+
+
+        <!-- =================================
+             LEADERBOARD
+             ================================= -->
+
+        <main
+            class="leaderboard"
+            id="leaderboard"
+        >
+
+        </main>
+
+    </section>
+
+
+
+    <!-- =====================================
+         RESULTS-BEREICH
+         ===================================== -->
+
+    <section
+        class="page-section hidden"
+        id="results-section"
+    >
+
+
+        <!-- =================================
+             RESULTS-KOPF
+             ================================= -->
+
+        <section class="section-header">
+
+            <div class="live">
+                RESULTS
+            </div>
+
+
+            <div class="section-title">
+                SCORECARD
+            </div>
+
+
+            <div class="results-round-select">
+
+                <select
+                    id="results-round"
+                    class="results-select"
+                >
+
+                    <option value="1">
+                        ROUND 1
+                    </option>
+
+                    <option value="2">
+                        ROUND 2
+                    </option>
+
+                    <option value="3">
+                        ROUND 3
+                    </option>
+
+                    <option value="4">
+                        ROUND 4
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================
+             GOLFPLATZ
+             ================================= -->
+
+        <div
+            class="results-course"
+            id="results-course"
+        >
+
+            ROUND 1 | GC LOIPERSDORF
+
+        </div>
+
+
+
+        <!-- =================================
+             SCORECARDS
+             ================================= -->
+
+        <main
+            class="results-container"
+            id="results-container"
+        >
+
+        </main>
+
+    </section>
+
+
+
+    <!-- =====================================
+         NEWS-BEREICH
+         ===================================== -->
+
+    <section
+    class="page-section hidden"
+    id="news-section"
+>
+
+    <section class="section-header">
+
+        <div class="live">
+            NEWS
+        </div>
+
+        <div class="section-title">
+            NEWS
+        </div>
+
+        <div class="round">
+            AMIGOS CHALLENGE CUP 2026
+        </div>
+
+    </section>
+
+
+    <main
+    class="news-container"
+    id="news-container"
+>
+</main>
+
+</section>
+
+
+    <!-- =====================================
+         JAVASCRIPT
+         ===================================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+    
+
+
+
+</body>
+
+</html>
