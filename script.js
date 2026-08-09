@@ -1263,31 +1263,26 @@ function getSpv(
 
 
     /*
-     * Negative Spielvorgabe:
+     * Die berechnete Course-SpV kann
+     * bei einem Plus-Handicap negativ sein.
      *
-     * Beispiel SpV -2:
+     * Beispiel:
      *
-     * HCP 1 = -1 Schlag
-     * HCP 2 = -1 Schlag
-     * alle anderen = 0
+     * berechnete SpV = -19
+     *
+     * Tatsächliche Spielvorgabe:
+     *
+     * +19
+     *
+     * Deshalb wird für die
+     * Lochverteilung immer der
+     * absolute Wert verwendet.
      */
 
-    if (
-        courseHandicap < 0
-    ) {
-
-        const negativeStrokes =
-            Math.abs(
-                courseHandicap
-            );
-
-        return (
-            holeInfo.hcp <=
-            negativeStrokes
-        )
-            ? -1
-            : 0;
-    }
+    const strokesTotal =
+        Math.abs(
+            courseHandicap
+        );
 
 
     /*
@@ -1297,7 +1292,7 @@ function getSpv(
      */
 
     if (
-        courseHandicap === 0
+        strokesTotal === 0
     ) {
 
         return 0;
@@ -1305,35 +1300,44 @@ function getSpv(
 
 
     /*
-     * Positive Spielvorgabe:
+     * Erste 18 Vorgabeschläge:
      *
-     * SpV 23:
+     * Jeder Schlag wird einmal
+     * auf HCP 1–18 verteilt.
      *
-     * HCP 1–18 = 1 Schlag
-     * HCP 1–5  = zusätzlicher Schlag
+     * Beispiel:
      *
-     * Ergebnis:
-     * HCP 1–5  = 2 Schläge
-     * HCP 6–18 = 1 Schlag
+     * SpV 18
+     *
+     * HCP 1–18 = jeweils 1 Schlag
      */
 
     const fullRounds =
         Math.floor(
-            courseHandicap / 18
+            strokesTotal / 18
         );
 
+
+    /*
+     * Restliche Vorgabeschläge:
+     *
+     * Diese gehen auf die
+     * niedrigsten HCP-Indizes.
+     *
+     * Beispiel SpV 19:
+     *
+     * HCP 1 = 2 Schläge
+     * HCP 2–18 = 1 Schlag
+     */
+
     const remainder =
-        courseHandicap %
+        strokesTotal %
         18;
+
 
     let strokes =
         fullRounds;
 
-
-    /*
-     * Verbleibende Schläge
-     * auf die niedrigsten HCP-Indizes.
-     */
 
     if (
         holeInfo.hcp <=
