@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Tournament Management</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+    <script
+        src="script.js"
+        defer
+    ></script>
+
+</head>
+
+
+<body>
+
+
+<header class="top-header">
+
+    <div class="header-inner">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                TM
+            </div>
+
+            <div>
+
+                <h1>
+                    Tournament Management
+                </h1>
+
+                <p>
+                    Configure and manage your tournament
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="connection-status"
+            class="connection-status"
+        >
+
+            <span class="status-dot"></span>
+
+            <span class="status-text">
+                Connecting...
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<main class="page-container">
+
+
+    <!-- =========================================
+         COURSES
+         ========================================= -->
+
+    <section class="management-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    TOURNAMENT SETUP
+                </span>
+
+                <h2>
+                    Course
+                </h2>
+
+                <p>
+                    Configure the courses used during the tournament.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="primary-button"
+                id="add-course"
+            >
+
+                <span>+</span>
+
+                Add Course
+
+            </button>
+
+        </div>
+
+
+
+        <div class="table-card">
+
+            <div class="table-scroll">
+
+                <table class="management-table course-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th
+                                class="course-name-column"
+                                rowspan="2"
+                            >
+                                Course Name
+                            </th>
+
+
+                            <th colspan="2">1</th>
+                            <th colspan="2">2</th>
+                            <th colspan="2">3</th>
+                            <th colspan="2">4</th>
+                            <th colspan="2">5</th>
+                            <th colspan="2">6</th>
+                            <th colspan="2">7</th>
+                            <th colspan="2">8</th>
+                            <th colspan="2">9</th>
+                            <th colspan="2">10</th>
+                            <th colspan="2">11</th>
+                            <th colspan="2">12</th>
+                            <th colspan="2">13</th>
+                            <th colspan="2">14</th>
+                            <th colspan="2">15</th>
+                            <th colspan="2">16</th>
+                            <th colspan="2">17</th>
+                            <th colspan="2">18</th>
+
+
+                            <th
+                                colspan="2"
+                                class="tee-group tee-yellow"
+                            >
+                                Yellow
+                            </th>
+
+                            <th
+                                colspan="2"
+                                class="tee-group tee-white"
+                            >
+                                White
+                            </th>
+
+                            <th
+                                colspan="2"
+                                class="tee-group tee-blue"
+                            >
+                                Blue
+                            </th>
+
+                            <th
+                                colspan="2"
+                                class="tee-group tee-red"
+                            >
+                                Red
+                            </th>
+
+
+                            <th rowspan="2"></th>
+
+                        </tr>
+
+
+                        <tr class="sub-header">
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+                            <th>PAR</th>
+                            <th>HCP</th>
+
+
+                            <th>CR</th>
+                            <th>Slope</th>
+
+                            <th>CR</th>
+                            <th>Slope</th>
+
+                            <th>CR</th>
+                            <th>Slope</th>
+
+                            <th>CR</th>
+                            <th>Slope</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="courses-body">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div
+                id="courses-empty"
+                class="empty-state"
+            >
+                No courses configured yet.
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         ROUNDS
+         ========================================= -->
+
+    <section class="management-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    TOURNAMENT STRUCTURE
+                </span>
+
+                <h2>
+                    Rounds
+                </h2>
+
+                <p>
+                    Define the rounds and assign a course to each round.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="primary-button"
+                id="add-round"
+            >
+
+                <span>+</span>
+
+                Add Round
+
+            </button>
+
+        </div>
+
+
+
+        <div class="table-card">
+
+            <table class="management-table rounds-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Round
+                        </th>
+
+                        <th>
+                            Course
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="rounds-body">
+                </tbody>
+
+            </table>
+
+
+            <div
+                id="rounds-empty"
+                class="empty-state"
+            >
+                No rounds configured yet.
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         PLAYERS
+         ========================================= -->
+
+    <section class="management-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    PARTICIPANTS
+                </span>
+
+                <h2>
+                    Players
+                </h2>
+
+                <p>
+                    Add and manage the tournament participants.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="primary-button"
+                id="add-player"
+            >
+
+                <span>+</span>
+
+                Add Player
+
+            </button>
+
+        </div>
+
+
+
+        <div class="table-card">
+
+            <table class="management-table players-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            #
+                        </th>
+
+                        <th>
+                            First Name
+                        </th>
+
+                        <th>
+                            Surname
+                        </th>
+
+                        <th>
+                            Country
+                        </th>
+
+                        <th>
+                            HCP
+                        </th>
+
+                        <th>
+                            Tee
+                        </th>
+
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="players-body">
+                </tbody>
+
+            </table>
+
+
+            <div
+                id="players-empty"
+                class="empty-state"
+            >
+                No players registered yet.
+            </div>
+
+        </div>
+
+    </section>
+
+<!-- =========================================
+     FLIGHTS
+     ========================================= -->
+
+<section class="management-section">
+
+    <div class="section-header">
+
+        <div>
+
+            <span class="section-kicker">
+                TOURNAMENT GROUPS
+            </span>
+
+            <h2>
+                Flights
+            </h2>
+
+            <p>
+                Assign tournament players to their flights.
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="primary-button"
+            id="add-flight"
+        >
+
+            <span>+</span>
+
+            Add Flight
+
+        </button>
+
+    </div>
+
+
+    <div class="table-card">
+
+        <table class="management-table flights-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Flight
+                    </th>
+
+                    <th>
+                        Player 1
+                    </th>
+
+                    <th>
+                        Player 2
+                    </th>
+
+                    <th>
+                        Player 3
+                    </th>
+
+                    <th>
+                        Player 4
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th></th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="flights-body">
+            </tbody>
+
+        </table>
+
+
+        <div
+            id="flights-empty"
+            class="empty-state"
+        >
+
+            No flights configured yet.
+
+        </div>
+
+    </div>
+
+</section>
+
+    <!-- =========================================
+         MODE
+         ========================================= -->
+
+    <section class="management-section mode-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-kicker">
+                    SCORING
+                </span>
+
+                <h2>
+                    Mode
+                </h2>
+
+                <p>
+                    Select the scoring mode for this tournament.
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="mode-grid">
+
+
+            <button
+                type="button"
+                class="mode-card"
+                data-mode="Strokeplay"
+            >
+
+                <div class="mode-icon">
+                    S
+                </div>
+
+                <div>
+
+                    <strong>
+                        Strokeplay
+                    </strong>
+
+                    <span>
+                        Standard strokeplay scoring
+                    </span>
+
+                </div>
+
+                <div class="mode-check">
+                    ✓
+                </div>
+
+            </button>
+
+
+
+            <button
+                type="button"
+                class="mode-card"
+                data-mode="Netto"
+            >
+
+                <div class="mode-icon">
+                    N
+                </div>
+
+                <div>
+
+                    <strong>
+                        Netto
+                    </strong>
+
+                    <span>
+                        Net score calculation
+                    </span>
+
+                </div>
+
+                <div class="mode-check">
+                    ✓
+                </div>
+
+            </button>
+
+
+
+            <button
+                type="button"
+                class="mode-card"
+                data-mode="Brutto"
+            >
+
+                <div class="mode-icon">
+                    B
+                </div>
+
+                <div>
+
+                    <strong>
+                        Brutto
+                    </strong>
+
+                    <span>
+                        Gross score calculation
+                    </span>
+
+                </div>
+
+                <div class="mode-check">
+                    ✓
+                </div>
+
+            </button>
+
+
+
+            <button
+                type="button"
+                class="mode-card"
+                data-mode="LWS"
+            >
+
+                <div class="mode-icon">
+                    L
+                </div>
+
+                <div>
+
+                    <strong>
+                        LWS
+                    </strong>
+
+                    <span>
+                        Custom LWS scoring
+                    </span>
+
+                </div>
+
+                <div class="mode-check">
+                    ✓
+                </div>
+
+            </button>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================
+         STATUS
+         ========================================= -->
+
+    <div
+        id="global-status"
+        class="global-status"
+    ></div>
+
+
+</main>
+
+
+
+<footer class="page-footer">
+
+    <span>
+        Tournament Management
+    </span>
+
+    <span>
+        Configuration Panel
+    </span>
+
+</footer>
+
+
+</body>
+
+</html>
