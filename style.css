@@ -1263,10 +1263,10 @@ body {
     display: grid;
 
     grid-template-columns:
-        32px
+        28px
         minmax(100px, 1fr)
-        42px
-        1.8fr;
+        36px
+        1.35fr;
 
     align-items: center;
 
