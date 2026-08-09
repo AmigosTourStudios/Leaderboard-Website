@@ -1255,18 +1255,18 @@ body {
 
 /* -------------------------------------
    SPIELERZEILE – HANDY
-   ------------------------------------- */
+------------------------------------- */
 
 .player-row {
-    padding: 8px 7px;
+    padding: 8px 5px;
 
     display: grid;
 
     grid-template-columns:
         28px
-        minmax(100px, 1fr)
-        36px
-        1.35fr;
+        minmax(125px, 1fr)
+        32px
+        minmax(145px, auto);
 
     align-items: center;
 
@@ -1276,14 +1276,12 @@ body {
 
 /* -------------------------------------
    RANG
-   ------------------------------------- */
+------------------------------------- */
 
 .rank {
     font-size: 28px;
-
     text-align: center;
 }
-
 
 /* -------------------------------------
    SPIELER
