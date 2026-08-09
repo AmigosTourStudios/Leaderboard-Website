@@ -592,7 +592,7 @@
     <h1>Score Eingabe</h1>
 
     <p>
-        Turnier · Scorekarte
+        Turnier · Scorekarte · <span id="current-course-name">–</span>
     </p>
 
 </div>
@@ -987,7 +987,12 @@ const parValue =
     document.getElementById(
         "par-value"
     );
-
+    
+const currentCourseName =
+    document.getElementById(
+        "current-course-name"
+    );
+    
 const saveButton =
     document.getElementById(
         "save"
@@ -2355,6 +2360,12 @@ function renderCurrentHole() {
             currentHoleNumber
         );
 
+    if (currentCourseName) {
+
+    currentCourseName.textContent =
+        currentCourse?.course_name ||
+        "–";
+}
 
     if (parValue) {
 
