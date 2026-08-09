@@ -974,29 +974,390 @@ function getHoleHcp(
 
 
 /* =========================================================
-   SPV
-   =========================================================
-
-   VORERST NICHT BERECHNEN.
-
-   Die spätere Logik wird sein:
-
-   Spieler-HCP + Course-Konfiguration
-   -> SpV
-   -> Verteilung auf die Löcher
-   -> Netto Stableford
-
-   Bis dahin wird bewusst KEINE falsche
-   SpV aus der Excel übernommen.
+   SPIELVORGABE DES SPIELERS
    ========================================================= */
 
+/*
+ * Berechnet die Spielvorgabe für einen Spieler
+ * auf Basis von:
+ *
+ * HCP
+ * Slope des gewählten Abschlags
+ * CR des gewählten Abschlags
+ * PAR des Platzes
+ *
+ * Formel:
+ *
+ * HCP × Slope / 113 - CR + PAR
+ */
+function getPlayerCourseHandicap(
+    round,
+    player
+) {
+
+    const course =
+        getCourseForRound(
+            round
+        );
+
+
+    if (
+        !course ||
+        !player
+    ) {
+
+        return null;
+    }
+
+
+    const hcp =
+        getNumericValue(
+            player.player_hcp
+        );
+
+
+    if (
+        hcp === null
+    ) {
+
+        return null;
+    }
+
+
+    const tee =
+        String(
+            player.player_tee ||
+            ""
+        )
+            .trim()
+            .toLowerCase();
+
+
+    if (
+        tee === ""
+    ) {
+
+        return null;
+    }
+
+
+    const teeConfig = {
+
+        yellow: {
+            slope: "slope_yellow",
+            cr: "cr_yellow"
+        },
+
+        white: {
+            slope: "slope_white",
+            cr: "cr_white"
+        },
+
+        blue: {
+            slope: "slope_blue",
+            cr: "cr_blue"
+        },
+
+        red: {
+            slope: "slope_red",
+            cr: "cr_red"
+        }
+
+    };
+
+
+    const config =
+        teeConfig[tee];
+
+
+    if (
+        !config
+    ) {
+
+        console.warn(
+            `Unbekannter Abschlag "${player.player_tee}" für ${player.name}.`
+        );
+
+        return null;
+    }
+
+
+    const slope =
+        getNumericValue(
+            course[
+                config.slope
+            ]
+        );
+
+
+    const cr =
+        getNumericValue(
+            course[
+                config.cr
+            ]
+        );
+
+
+    /*
+     * Das Platz-PAR wird aus den
+     * 18 Loch-PAR-Werten des Courses
+     * berechnet.
+     */
+    let coursePar = 0;
+
+
+    for (
+        let hole = 1;
+        hole <= 18;
+        hole++
+    ) {
+
+        const number =
+            String(
+                hole
+            )
+                .padStart(
+                    2,
+                    "0"
+                );
+
+
+        const par =
+            getNumericValue(
+                course[
+                    `${number}_par`
+                ]
+            );
+
+
+        if (
+            par !== null
+        ) {
+
+            coursePar += par;
+        }
+
+    }
+
+
+    if (
+        slope === null ||
+        cr === null ||
+        coursePar === 0
+    ) {
+
+        return null;
+    }
+
+
+    const rawCourseHandicap =
+        (
+            hcp *
+            slope /
+            113
+        ) -
+        cr +
+        coursePar;
+
+
+    /*
+     * Die Spielvorgabe muss als
+     * ganze Zahl auf die Löcher
+     * verteilt werden.
+     */
+    return Math.round(
+        rawCourseHandicap
+    );
+
+}
+
+
+/* =========================================================
+ * SPV FÜR EIN KONKRETES LOCH
+ * =========================================================
+ *
+ * Gibt zurück, wie viele Vorgabeschläge
+ * der Spieler auf diesem Loch erhält.
+ *
+ * Beispiel:
+ *
+ * SpV 7:
+ * HCP 1–7 = 1 Schlag
+ * HCP 8–18 = 0 Schläge
+ *
+ * SpV 23:
+ * HCP 1–5 = 2 Schläge
+ * HCP 6–18 = 1 Schlag
+ */
+/* =========================================================
+   SPV FÜR EIN KONKRETES LOCH
+   ========================================================= */
+
+/*
+ * Gibt zurück, wie viele Vorgabeschläge
+ * der Spieler auf diesem Loch erhält.
+ *
+ * Beispiel:
+ *
+ * SpV 7:
+ * HCP 1–7  = 1 Schlag
+ * HCP 8–18 = 0 Schläge
+ *
+ * SpV 23:
+ * HCP 1–5  = 2 Schläge
+ * HCP 6–18 = 1 Schlag
+ */
 function getSpv(
     round,
     hole,
     playerId
 ) {
 
-    return null;
+    const holeKey =
+        `${round}_${hole}`;
+
+
+    const hole =
+        holeData[
+            holeKey
+        ];
+
+
+    if (
+        !hole
+    ) {
+
+        return null;
+    }
+
+
+    const player =
+        players.find(
+            item =>
+                String(
+                    item.id
+                ) ===
+                String(
+                    playerId
+                )
+        );
+
+
+    if (
+        !player
+    ) {
+
+        return null;
+    }
+
+
+    const courseHandicap =
+        getPlayerCourseHandicap(
+            round,
+            player
+        );
+
+
+    if (
+        courseHandicap === null
+    ) {
+
+        return null;
+    }
+
+
+    /*
+     * Negative Spielvorgabe:
+     *
+     * Bei einer negativen SpV werden
+     * Schläge vom Spielergebnis abgezogen.
+     *
+     * Beispiel:
+     * SpV -2
+     *
+     * HCP 1 = -1 Schlag
+     * HCP 2 = -1 Schlag
+     * alle anderen = 0
+     */
+    if (
+        courseHandicap < 0
+    ) {
+
+        const negativeStrokes =
+            Math.abs(
+                courseHandicap
+            );
+
+
+        return (
+            hole.hcp <=
+            negativeStrokes
+        )
+            ? -1
+            : 0;
+    }
+
+
+    /*
+     * SpV 0:
+     *
+     * Kein Vorgabeschlag.
+     */
+    if (
+        courseHandicap === 0
+    ) {
+
+        return 0;
+    }
+
+
+    /*
+     * Die Spielvorgabe wird auf
+     * die Löcher mit den niedrigsten
+     * HCP-Indizes verteilt.
+     *
+     * Beispiel SpV 23:
+     *
+     * 1. Schlag:
+     * HCP 1–18
+     *
+     * 2. Schlag:
+     * HCP 1–5
+     *
+     * Ergebnis:
+     *
+     * HCP 1–5  = 2 Schläge
+     * HCP 6–18 = 1 Schlag
+     */
+    const fullRounds =
+        Math.floor(
+            courseHandicap / 18
+        );
+
+
+    const remainder =
+        courseHandicap %
+        18;
+
+
+    let strokes =
+        fullRounds;
+
+
+    /*
+     * Die verbleibenden Schläge
+     * gehen auf die niedrigsten
+     * HCP-Indizes.
+     */
+    if (
+        hole.hcp <= remainder
+    ) {
+
+        strokes++;
+    }
+
+
+    return strokes;
 }
 
 
