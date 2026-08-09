@@ -1205,6 +1205,10 @@ function resetPlayerTotals() {
    LEADERBOARD BERECHNEN
    ========================================================= */
 
+/* =========================================================
+   LEADERBOARD BERECHNEN
+   ========================================================= */
+
 function calculateLeaderboardData() {
 
     resetPlayerTotals();
@@ -1213,7 +1217,6 @@ function calculateLeaderboardData() {
     /*
      * Alle vorhandenen Runden durchlaufen.
      */
-
     rounds.forEach(
         roundData => {
 
@@ -1245,9 +1248,12 @@ function calculateLeaderboardData() {
 
 
                 /*
-                 * Scores aller Spieler.
+                 * Scores aller Spieler für dieses Loch.
+                 *
+                 * Wichtig:
+                 * Jeder Spieler wird unabhängig
+                 * von den anderen Spielern berechnet.
                  */
-
                 const scores =
                     players.map(
                         player =>
@@ -1260,30 +1266,15 @@ function calculateLeaderboardData() {
 
 
                 /*
-                 * Für die Gesamtwertung
-                 * verwenden wir nur Löcher,
-                 * auf denen alle Spieler
-                 * einen Score eingetragen haben.
+                 * =====================================================
+                 * SPIELERWERTE
                  *
-                 * Damit bleibt das bisherige
-                 * Verhalten erhalten.
+                 * Jeder Spieler bekommt seinen Score sofort angerechnet.
+                 *
+                 * Ein fehlender Score bei einem anderen Spieler
+                 * verhindert die Berechnung NICHT.
+                 * =====================================================
                  */
-
-                const allPlayersPlayed =
-                    scores.length > 0 &&
-                    scores.every(
-                        score =>
-                            score !== null
-                    );
-
-
-                if (
-                    !allPlayersPlayed
-                ) {
-
-                    continue;
-                }
-
 
                 players.forEach(
                     (
@@ -1295,6 +1286,21 @@ function calculateLeaderboardData() {
                             scores[index];
 
 
+                        /*
+                         * Spieler hat dieses Loch
+                         * noch nicht gespielt.
+                         */
+                        if (
+                            score === null
+                        ) {
+
+                            return;
+                        }
+
+
+                        /*
+                         * BRUTTO
+                         */
                         player.totalShots +=
                             score;
 
@@ -1306,6 +1312,9 @@ function calculateLeaderboardData() {
                         player.playedHoles++;
 
 
+                        /*
+                         * BRUTTO STABLEFORD
+                         */
                         player.totalGrossStableford +=
                             calculateGrossStableford(
                                 score,
@@ -1314,10 +1323,8 @@ function calculateLeaderboardData() {
 
 
                         /*
-                         * Netto wird derzeit
-                         * nicht berechnet.
+                         * NETTO STABLEFORD
                          */
-
                         const spv =
                             getSpv(
                                 round,
@@ -1341,8 +1348,8 @@ function calculateLeaderboardData() {
                             player.totalNetStableford +=
                                 netPoints;
 
-                            player.netHoles++;
 
+                            player.netHoles++;
                         }
 
                     }
@@ -1350,7 +1357,16 @@ function calculateLeaderboardData() {
 
 
                 /*
+                 * =====================================================
                  * LWS
+                 *
+                 * LWS wird weiterhin NUR berechnet,
+                 * wenn alle Spieler für dieses Loch
+                 * einen Score haben.
+                 *
+                 * calculateLwsForHole() liefert bei fehlenden
+                 * Scores bereits null zurück.
+                 * =====================================================
                  */
 
                 const lws =
@@ -1384,7 +1400,9 @@ function calculateLeaderboardData() {
 
 
     /*
-     * Score zu PAR.
+     * =====================================================
+     * SCORE ZU PAR
+     * =====================================================
      */
 
     players.forEach(
@@ -1419,7 +1437,7 @@ function calculateLeaderboardData() {
      * 4. Brutto STB
      *
      * Der Netto-Punkt wird nur berücksichtigt,
-     * wenn später tatsächlich SpV-Daten vorhanden sind.
+     * wenn tatsächlich SpV-Daten vorhanden sind.
      * =====================================================
      */
 
@@ -1431,7 +1449,9 @@ function calculateLeaderboardData() {
 
 
     /*
+     * =====================================================
      * 1. BRUTTO ZU PAR
+     * =====================================================
      */
 
     if (
@@ -1466,7 +1486,9 @@ function calculateLeaderboardData() {
 
 
     /*
+     * =====================================================
      * 2. LWS
+     * =====================================================
      */
 
     if (
@@ -1501,10 +1523,12 @@ function calculateLeaderboardData() {
 
 
     /*
+     * =====================================================
      * 3. NETTO STABLEFORD
      *
-     * Nur aktiv, wenn Netto-Werte
-     * tatsächlich vorhanden sind.
+     * Nur Spieler mit tatsächlichen
+     * Netto-Werten werden berücksichtigt.
+     * =====================================================
      */
 
     const playersWithNet =
@@ -1546,7 +1570,9 @@ function calculateLeaderboardData() {
 
 
     /*
+     * =====================================================
      * 4. BRUTTO STABLEFORD
+     * =====================================================
      */
 
     if (
@@ -1581,7 +1607,9 @@ function calculateLeaderboardData() {
 
 
     /*
+     * =====================================================
      * SORTIERUNG
+     * =====================================================
      */
 
     players.sort(
@@ -1642,31 +1670,40 @@ function calculateLeaderboardData() {
 
 
             /*
-             * 4. Nachname
+             * 4. Netto Stableford
              */
 
-            const surnameA =
-                String(
-                    a.player_surname ||
-                    ""
-                )
-                    .trim()
-                    .toLowerCase();
+            if (
+                a.totalNetStableford !==
+                b.totalNetStableford
+            ) {
+
+                return (
+                    b.totalNetStableford -
+                    a.totalNetStableford
+                );
+
+            }
 
 
-            const surnameB =
-                String(
-                    b.player_surname ||
-                    ""
-                )
-                    .trim()
-                    .toLowerCase();
+            /*
+             * 5. Brutto Stableford
+             */
+
+            if (
+                a.totalGrossStableford !==
+                b.totalGrossStableford
+            ) {
+
+                return (
+                    b.totalGrossStableford -
+                    a.totalGrossStableford
+                );
+
+            }
 
 
-            return surnameA.localeCompare(
-                surnameB,
-                "de"
-            );
+            return 0;
 
         }
     );
