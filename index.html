@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 
@@ -24,47 +25,64 @@
 
 
     <!-- =====================================
-         KOPFBEREICH
+         HEADER
+         ===================================== -->
+
+         <!-- =====================================
+         LOGO links
          ===================================== -->
 
     <header class="header">
 
-    <div class="tour-brand">
-        <img
-            src="Tour_Logo.png"
-            alt="Amigos Tour"
-        >
-    </div>
+        <div class="tour-brand">
 
-    <div class="tournament-brand">
+            <img
+                src="Tour_Logo.png"
+                alt="Amigos Tour"
+            >
 
-        <div class="tournament-eyebrow">
-            AMIGOS TOUR
         </div>
 
-        <div class="tournament-title">
-            CHALLENGE CUP
+        <!-- =====================================
+         TURNIERTITEL mitte
+         ===================================== -->
+
+        <div class="tournament-brand">
+
+            <div class="tournament-eyebrow">
+                AMIGOS TOUR
+            </div>
+
+            <div class="tournament-title">
+                ST. EURACH OPEN
+            </div>
+
+            <div
+                class="tournament-year"
+                id="tournament-year"
+            >
+                03.08. - 06.08 | 2026
+            </div>
+
         </div>
 
-        <div class="tournament-year">
-            2026
+        <!-- =====================================
+         LOCATION rechts
+         ===================================== -->
+
+        <div class="location">
+
+            <span class="location-label">
+                GERMANY
+            </span>
+
+            <span class="location-value">
+                IFFELDORF
+            </span>
+
         </div>
 
-    </div>
-
-    <div class="location">
-
-        <span class="location-label">
-            AUSTRIA
-        </span>
-
-        <span class="location-value">
-            STEIERMARK
-        </span>
-
-    </div>
-
-</header>
+    </header>
 
 
 
@@ -105,7 +123,7 @@
 
 
     <!-- =====================================
-         LEADERBOARD-BEREICH
+         LEADERBOARD
          ===================================== -->
 
     <section
@@ -113,42 +131,27 @@
         id="leaderboard-section"
     >
 
+        <section class="section-header">
 
-        <!-- =================================
-             LEADERBOARD-KOPF
-             ================================= -->
-
-<section class="section-header">
-
-    <div class="live">
-        LIVE
-    </div>
-
-    <div class="section-title">
-        LEADERBOARD
-    </div>
-
-    <div
-        class="round"
-        id="round-info"
-    >
-        <span class="round-course">
-            ROUND 1 | GC LOIPERSDORF
-        </span>
-
-        <span class="round-thr">
-            THR 1
-        </span>
-    </div>
-
-</section>
+            <div class="live">
+                LIVE
+            </div>
 
 
+            <div class="section-title">
+                LEADERBOARD
+            </div>
 
 
-        <!-- =================================
-             LEADERBOARD
-             ================================= -->
+            <div
+                class="round"
+                id="round-info"
+            >
+                TURNIER WIRD GELADEN
+            </div>
+
+        </section>
+
 
         <main
             class="leaderboard"
@@ -162,18 +165,13 @@
 
 
     <!-- =====================================
-         RESULTS-BEREICH
+         RESULTS
          ===================================== -->
 
     <section
         class="page-section hidden"
         id="results-section"
     >
-
-
-        <!-- =================================
-             RESULTS-KOPF
-             ================================= -->
 
         <section class="section-header">
 
@@ -194,22 +192,6 @@
                     class="results-select"
                 >
 
-                    <option value="1">
-                        ROUND 1
-                    </option>
-
-                    <option value="2">
-                        ROUND 2
-                    </option>
-
-                    <option value="3">
-                        ROUND 3
-                    </option>
-
-                    <option value="4">
-                        ROUND 4
-                    </option>
-
                 </select>
 
             </div>
@@ -218,24 +200,14 @@
 
 
 
-        <!-- =================================
-             GOLFPLATZ
-             ================================= -->
-
         <div
             class="results-course"
             id="results-course"
         >
-
-            ROUND 1 | GC LOIPERSDORF
-
+            TURNIER WIRD GELADEN
         </div>
 
 
-
-        <!-- =================================
-             SCORECARDS
-             ================================= -->
 
         <main
             class="results-container"
@@ -249,49 +221,59 @@
 
 
     <!-- =====================================
-         NEWS-BEREICH
+         NEWS
          ===================================== -->
 
     <section
-    class="page-section hidden"
-    id="news-section"
->
+        class="page-section hidden"
+        id="news-section"
+    >
 
-    <section class="section-header">
+        <section class="section-header">
 
-        <div class="live">
-            NEWS
-        </div>
+            <div class="live">
+                NEWS
+            </div>
 
-        <div class="section-title">
-            NEWS
-        </div>
 
-        <div class="round">
-            AMIGOS CHALLENGE CUP 2026
-        </div>
+            <div class="section-title">
+                NEWS
+            </div>
+
+
+            <div class="round">
+                AMIGOS CHALLENGE CUP 2026
+            </div>
+
+        </section>
+
+
+        <main
+            class="news-container"
+            id="news-container"
+        >
+
+        </main>
 
     </section>
 
 
-    <main
-    class="news-container"
-    id="news-container"
->
-</main>
 
-</section>
+    <!-- =====================================
+         SUPABASE
+         ===================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
     <!-- =====================================
-         JAVASCRIPT
+         APPLICATION
          ===================================== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
-    
 
+    <script src="script.js"></script>
 
 
 </body>
 
 </html>
+
