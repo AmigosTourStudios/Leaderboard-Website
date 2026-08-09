@@ -1216,15 +1216,13 @@ function getSpv(
     const holeKey =
         `${round}_${hole}`;
 
-
-    const hole =
+    const holeInfo =
         holeData[
             holeKey
         ];
 
-
     if (
-        !hole
+        !holeInfo
     ) {
 
         return null;
@@ -1242,7 +1240,6 @@ function getSpv(
                 )
         );
 
-
     if (
         !player
     ) {
@@ -1257,7 +1254,6 @@ function getSpv(
             player
         );
 
-
     if (
         courseHandicap === null
     ) {
@@ -1269,16 +1265,13 @@ function getSpv(
     /*
      * Negative Spielvorgabe:
      *
-     * Bei einer negativen SpV werden
-     * Schläge vom Spielergebnis abgezogen.
-     *
-     * Beispiel:
-     * SpV -2
+     * Beispiel SpV -2:
      *
      * HCP 1 = -1 Schlag
      * HCP 2 = -1 Schlag
      * alle anderen = 0
      */
+
     if (
         courseHandicap < 0
     ) {
@@ -1288,9 +1281,8 @@ function getSpv(
                 courseHandicap
             );
 
-
         return (
-            hole.hcp <=
+            holeInfo.hcp <=
             negativeStrokes
         )
             ? -1
@@ -1303,6 +1295,7 @@ function getSpv(
      *
      * Kein Vorgabeschlag.
      */
+
     if (
         courseHandicap === 0
     ) {
@@ -1312,45 +1305,39 @@ function getSpv(
 
 
     /*
-     * Die Spielvorgabe wird auf
-     * die Löcher mit den niedrigsten
-     * HCP-Indizes verteilt.
+     * Positive Spielvorgabe:
      *
-     * Beispiel SpV 23:
+     * SpV 23:
      *
-     * 1. Schlag:
-     * HCP 1–18
-     *
-     * 2. Schlag:
-     * HCP 1–5
+     * HCP 1–18 = 1 Schlag
+     * HCP 1–5  = zusätzlicher Schlag
      *
      * Ergebnis:
-     *
      * HCP 1–5  = 2 Schläge
      * HCP 6–18 = 1 Schlag
      */
+
     const fullRounds =
         Math.floor(
             courseHandicap / 18
         );
 
-
     const remainder =
         courseHandicap %
         18;
-
 
     let strokes =
         fullRounds;
 
 
     /*
-     * Die verbleibenden Schläge
-     * gehen auf die niedrigsten
-     * HCP-Indizes.
+     * Verbleibende Schläge
+     * auf die niedrigsten HCP-Indizes.
      */
+
     if (
-        hole.hcp <= remainder
+        holeInfo.hcp <=
+        remainder
     ) {
 
         strokes++;
@@ -1359,7 +1346,6 @@ function getSpv(
 
     return strokes;
 }
-
 
 
 /* =========================================================
@@ -3757,51 +3743,6 @@ async function loadNews() {
      * News liegt weiterhin in der
      * bisherigen Score/News-Supabase.
      */
-
-    function initializeSupabase() {
-
-    if (
-        typeof window.supabase ===
-        "undefined"
-    ) {
-
-        console.error(
-            "Supabase-Bibliothek wurde nicht geladen."
-        );
-
-        return false;
-    }
-
-
-    const supabaseClient =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
-
-
-    /*
-     * Alle Tabellen liegen im selben
-     * Supabase-Projekt.
-     *
-     * Beide Variablen zeigen deshalb
-     * auf exakt denselben Client.
-     */
-
-    tournamentSupabase =
-        supabaseClient;
-
-    scoreSupabase =
-        supabaseClient;
-
-
-    console.log(
-        "Supabase-Verbindung wurde initialisiert."
-    );
-
-
-    return true;
-}
 
 
     const {
