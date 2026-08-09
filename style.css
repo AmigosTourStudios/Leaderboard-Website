@@ -1264,15 +1264,14 @@ body {
 
     grid-template-columns:
         28px
-        minmax(125px, 1fr)
+        minmax(0, 1fr)
         32px
-        minmax(145px, auto);
+        125px;
 
     align-items: center;
 
     min-height: 68px;
 }
-
 
 /* -------------------------------------
    RANG
@@ -1328,14 +1327,14 @@ body {
     justify-content: space-between;
     align-items: center;
 
-    gap: 2px;
+    gap: 0;
 
     margin-top: 0;
     padding-left: 0;
 }
 
 .stat {
-    flex: 1;
+    flex: 0 0 40px;
 
     margin-top: 0;
 
