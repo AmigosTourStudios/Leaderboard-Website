@@ -1,0 +1,5420 @@
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Score Eingabe</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f3f3f3;
+        color: #111;
+    }
+
+    .input-page {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 16px;
+    }
+
+    /* =====================================
+       KOPF
+       ===================================== */
+
+    .input-title {
+        margin-bottom: 15px;
+    }
+
+    .input-title h1 {
+        margin: 0;
+        font-size: 27px;
+    }
+
+    .input-title p {
+        margin: 5px 0 0;
+        color: #666;
+    }
+
+/* =====================================
+   FLIGHT-AUSWAHL
+   ===================================== */
+
+.flight-selection-card {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.flight-selection-label {
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.flight-select {
+    width: 100%;
+    height: 46px;
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 9px;
+    background: white;
+    font-size: 16px;
+}
+
+.flight-select:focus {
+    outline: none;
+    border-color: #071b2d;
+}
+
+.flight-info {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #666;
+}
+    
+    /* =====================================
+       LOCH-NAVIGATION
+       ===================================== */
+
+    .hole-navigation {
+        display: grid;
+        grid-template-columns: 48px 1fr 48px;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .navigation-button {
+        height: 48px;
+        border: none;
+        border-radius: 9px;
+        background: #ddd;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .hole-select {
+        width: 100%;
+        height: 48px;
+        padding: 0 10px;
+        border: 1px solid #ccc;
+        border-radius: 9px;
+        background: white;
+        font-size: 16px;
+    }
+
+    /* =====================================
+       PAR
+       ===================================== */
+
+    .par-display {
+        text-align: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: white;
+        border-radius: 10px;
+        box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .par-label {
+        font-size: 12px;
+        color: #777;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .par-value {
+        margin-top: 2px;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    /* =====================================
+       SPIELER
+       ===================================== */
+
+    .players-card {
+        background: white;
+        border-radius: 14px;
+        padding: 8px 16px;
+        box-shadow:
+            0 3px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .player-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 12px;
+        min-height: 72px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .player-row:last-child {
+        border-bottom: none;
+    }
+
+    .player-name {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .player-controls {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .score-button {
+        width: 42px;
+        height: 42px;
+        border: none;
+        border-radius: 8px;
+        background: #ddd;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .score-input {
+        width: 48px;
+        height: 42px;
+        padding: 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    /* =====================================
+       SPEICHERN
+       ===================================== */
+
+    .save-button {
+        width: 100%;
+        height: 54px;
+        margin-top: 16px;
+        border: none;
+        border-radius: 9px;
+        background: #111;
+        color: white;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* =====================================
+       RESET
+       ===================================== */
+
+    .reset-button {
+        width: 100%;
+        height: 48px;
+        margin-top: 10px;
+        border: none;
+        border-radius: 9px;
+        background: #c62828;
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* =====================================
+       STATUS
+       ===================================== */
+
+    .status {
+        display: none;
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        background: #eee;
+        font-size: 14px;
+    }
+
+    /* =====================================
+       MOBILE
+       ===================================== */
+
+    @media (max-width: 420px) {
+
+        .input-page {
+            padding: 12px;
+        }
+
+        .player-name {
+            font-size: 14px;
+        }
+
+        .score-button {
+            width: 40px;
+            height: 40px;
+        }
+
+        .score-input {
+            width: 44px;
+            height: 40px;
+        }
+    }
+
+    /* =====================================
+       NEWS MESSENGER
+       ===================================== */
+
+    .news-fab {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 58px;
+        height: 58px;
+        border: none;
+        border-radius: 50%;
+        background: #2e7d32;
+        color: white;
+        font-size: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow:
+            0 4px 14px rgba(0, 0, 0, 0.25);
+        cursor: pointer;
+        z-index: 1000;
+    }
+
+    .news-fab:active {
+        transform: scale(0.95);
+    }
+
+    /* =====================================
+       NEWS PANEL
+       ===================================== */
+
+    .news-panel {
+        position: fixed;
+        right: 20px;
+        bottom: 90px;
+        width: min(
+            360px,
+            calc(100vw - 30px)
+        );
+        max-height: calc(100vh - 110px);
+        background: white;
+        border-radius: 14px;
+        box-shadow:
+            0 8px 30px rgba(0, 0, 0, 0.22);
+        overflow: hidden;
+        z-index: 999;
+        display: none;
+    }
+
+    .news-panel.open {
+        display: block;
+    }
+
+    /* =====================================
+       PANEL HEADER
+       ===================================== */
+
+    .news-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 16px;
+        background: #071b2d;
+        color: white;
+    }
+
+    .news-panel-header strong {
+        display: block;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+
+    .news-panel-header span {
+        display: block;
+        margin-top: 3px;
+        font-size: 11px;
+        opacity: 0.7;
+    }
+
+    .news-header-title {
+        flex: 1;
+        text-align: center;
+    }
+
+    .news-navigation-button {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        border: none;
+        border-radius: 50%;
+        background: rgba(
+            255,
+            255,
+            255,
+            0.12
+        );
+        color: white;
+        font-size: 24px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .news-navigation-button:disabled {
+        opacity: 0.3;
+        cursor: default;
+    }
+
+    .news-close {
+        width: 32px;
+        height: 32px;
+        margin-left: 8px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(
+            255,
+            255,
+            255,
+            0.12
+        );
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    /* =====================================
+       FORMULAR
+       ===================================== */
+
+    .news-form {
+        padding: 16px;
+        max-height: calc(100vh - 180px);
+        overflow-y: auto;
+    }
+
+    .news-form label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .news-form input,
+    .news-form textarea {
+        width: 100%;
+        border: 1px solid #d5d5d5;
+        border-radius: 8px;
+        padding: 10px 11px;
+        margin-bottom: 14px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+    }
+
+    .news-form textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .news-form input:focus,
+    .news-form textarea:focus {
+        outline: none;
+        border-color: #2e7d32;
+    }
+
+    /* =====================================
+       NEUER NEWS BUTTON
+       ===================================== */
+
+    .news-new-button {
+        width: 100%;
+        height: 42px;
+        margin-bottom: 14px;
+        border: none;
+        border-radius: 8px;
+        background: #071b2d;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .news-new-button:hover {
+        background: #0c2a43;
+    }
+
+    /* =====================================
+       NEWS MEDIEN
+       ===================================== */
+
+    .news-media-preview {
+        width: 100%;
+        margin-top: -5px;
+        margin-bottom: 14px;
+    }
+
+    .news-media-preview:empty {
+        display: none;
+    }
+
+    .news-media-preview img,
+    .news-media-preview video {
+        display: block;
+        width: 100%;
+        max-height: 280px;
+        object-fit: contain;
+        border-radius: 10px;
+        background: #f0f0f0;
+    }
+
+    .news-media-preview video {
+        max-height: 260px;
+    }
+
+    .news-media-preview-label {
+        margin-bottom: 6px;
+        font-size: 11px;
+        color: #777;
+    }
+
+    .news-media-remove {
+        width: 100%;
+        height: 38px;
+        margin-top: 7px;
+        border: none;
+        border-radius: 7px;
+        background: #e0e0e0;
+        color: #333;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .news-media-remove:hover {
+        background: #d5d5d5;
+    }
+
+    /* =====================================
+       NEWS BUTTONS
+       ===================================== */
+
+    .news-submit {
+        width: 100%;
+        height: 46px;
+        border: none;
+        border-radius: 8px;
+        background: #2e7d32;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .news-submit:disabled {
+        opacity: 0.6;
+        cursor: wait;
+    }
+
+    .news-delete {
+        width: 100%;
+        height: 46px;
+        margin-top: 8px;
+        border: none;
+        border-radius: 8px;
+        background: #c62828;
+        color: white;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .news-delete:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+
+    /* =====================================
+       HANDY
+       ===================================== */
+
+    @media (max-width: 420px) {
+
+        .news-fab {
+            right: 16px;
+            bottom: 16px;
+            width: 54px;
+            height: 54px;
+        }
+
+        .news-panel {
+            right: 15px;
+            bottom: 80px;
+            width: calc(100vw - 30px);
+        }
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<main class="input-page">
+
+<div class="input-title">
+
+    <h1>Score Eingabe</h1>
+
+    <p>
+        Turnier · Scorekarte
+    </p>
+
+</div>
+
+<!-- =====================================
+     FLIGHT-AUSWAHL
+     ===================================== -->
+
+<section class="flight-selection-card">
+
+    <div class="flight-selection-label">
+        FLIGHT
+    </div>
+
+    <select
+        id="flight-select"
+        class="flight-select"
+    >
+        <option value="">
+            Flight auswählen...
+        </option>
+    </select>
+
+    <div
+        id="flight-info"
+        class="flight-info"
+    >
+        Bitte einen Flight auswählen.
+    </div>
+
+</section>
+
+<!-- =====================================
+     LOCH-AUSWAHL
+     ===================================== -->
+
+<div class="hole-navigation">
+
+    <button
+        type="button"
+        class="navigation-button"
+        id="previous-hole"
+    >
+        ‹
+    </button>
+
+    <select
+        class="hole-select"
+        id="hole-select"
+    >
+    </select>
+
+    <button
+        type="button"
+        class="navigation-button"
+        id="next-hole"
+    >
+        ›
+    </button>
+
+</div>
+
+
+<!-- =====================================
+     PAR
+     ===================================== -->
+
+<div class="par-display">
+
+    <div class="par-label">
+        Par
+    </div>
+
+    <div
+        class="par-value"
+        id="par-value"
+    >
+        –
+    </div>
+
+</div>
+
+
+<!-- =====================================
+     SPIELER
+     ===================================== -->
+
+<section
+    class="players-card"
+    id="players-card"
+>
+</section>
+
+
+<button
+    type="button"
+    class="save-button"
+    id="save"
+>
+    SCHLÄGE SPEICHERN
+</button>
+
+
+<button
+    type="button"
+    class="reset-button"
+    id="reset-tournament"
+>
+    TURNIER ZURÜCKSETZEN
+</button>
+
+
+<div
+    class="status"
+    id="status"
+></div>
+
+
+<!-- =====================================
+     NEWS MESSENGER
+     ===================================== -->
+
+<button
+    type="button"
+    class="news-fab"
+    id="news-fab"
+    aria-label="News erstellen"
+>
+    💬
+</button>
+
+
+<div
+    class="news-panel"
+    id="news-panel"
+>
+
+    <!-- =====================================
+         NEWS HEADER
+         ===================================== -->
+
+    <div class="news-panel-header">
+
+        <button
+            type="button"
+            class="news-navigation-button"
+            id="previous-news"
+            aria-label="Vorherige News"
+        >
+            ‹
+        </button>
+
+
+        <div class="news-header-title">
+
+            <strong id="news-header-title">
+                NEWS POSTEN
+            </strong>
+
+            <span id="news-counter">
+                Neuer Post
+            </span>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="news-navigation-button"
+            id="next-news"
+            aria-label="Nächste News"
+        >
+            ›
+        </button>
+
+
+        <button
+            type="button"
+            class="news-close"
+            id="news-close"
+            aria-label="News schließen"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <!-- =====================================
+         NEWS FORMULAR
+         ===================================== -->
+
+    <div class="news-form">
+
+        <button
+            type="button"
+            class="news-new-button"
+            id="news-new"
+        >
+            + NEUE NEWS SCHREIBEN
+        </button>
+
+
+        <label for="news-title">
+            Überschrift
+        </label>
+
+
+        <input
+            type="text"
+            id="news-title"
+            placeholder="z. B. Runde 1 gestartet"
+            maxlength="100"
+        >
+
+
+        <label for="news-content">
+            Nachricht
+        </label>
+
+
+        <textarea
+            id="news-content"
+            placeholder="Was gibt es Neues?"
+            maxlength="1000"
+        ></textarea>
+
+
+        <label for="news-media">
+            Bild oder Video
+        </label>
+
+
+        <input
+            type="file"
+            id="news-media"
+            accept="image/*,video/*"
+        >
+
+
+        <div
+            id="news-media-preview"
+            class="news-media-preview"
+        ></div>
+
+
+        <button
+            type="button"
+            class="news-submit"
+            id="news-submit"
+        >
+            NEWS VERÖFFENTLICHEN
+        </button>
+
+
+        <button
+            type="button"
+            class="news-delete"
+            id="news-delete"
+            disabled
+        >
+            NEWS LÖSCHEN
+        </button>
+
+    </div>
+
+</div>
+
+
+</main>
+
+<script>
+
+// ============================================================
+// KONFIGURATION
+// ============================================================
+
+// EINZIGES SUPABASE-PROJEKT
+const SUPABASE_URL =
+    "https://ylphreyqfcnhmomqsfbe.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_v4zKEbe5ypgXoE_0T8-NBA_c_TLN5Cl";
+
+
+// ============================================================
+// SUPABASE CLIENT
+// ============================================================
+
+let supabaseClient = null;
+
+
+function initializeSupabase() {
+
+    if (typeof supabase === "undefined") {
+
+        console.error(
+            "Supabase-Bibliothek wurde nicht geladen."
+        );
+
+        showStatus(
+            "Supabase-Bibliothek wurde nicht geladen.",
+            true
+        );
+
+        return false;
+    }
+
+
+    supabaseClient =
+        supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+
+    console.log(
+        "Supabase-Verbindung hergestellt."
+    );
+
+
+    console.log(
+        "Supabase-Projekt:",
+        SUPABASE_URL
+    );
+
+
+    return true;
+}
+
+
+// ============================================================
+// TURNIERDATEN
+// ============================================================
+
+let tournamentCourses = [];
+let tournamentRounds = [];
+let tournamentPlayers = [];
+let tournamentFlights = [];
+let tournamentScores = [];
+
+
+// ============================================================
+// AUSWAHL
+// ============================================================
+
+let selectedFlight = null;
+let flightPlayers = [];
+
+let currentRoundIndex = 0;
+let currentHoleNumber = 1;
+
+let currentRound = null;
+let currentCourse = null;
+
+
+// ============================================================
+// DOM
+// ============================================================
+
+const flightSelect =
+    document.getElementById(
+        "flight-select"
+    );
+
+const flightInfo =
+    document.getElementById(
+        "flight-info"
+    );
+
+const holeSelect =
+    document.getElementById(
+        "hole-select"
+    );
+
+const previousHoleButton =
+    document.getElementById(
+        "previous-hole"
+    );
+
+const nextHoleButton =
+    document.getElementById(
+        "next-hole"
+    );
+
+const playersCard =
+    document.getElementById(
+        "players-card"
+    );
+
+const parValue =
+    document.getElementById(
+        "par-value"
+    );
+
+const saveButton =
+    document.getElementById(
+        "save"
+    );
+
+const resetTournamentButton =
+    document.getElementById(
+        "reset-tournament"
+    );
+
+
+// ============================================================
+// TURNIERDATEN LADEN
+// ============================================================
+
+async function loadTournamentData() {
+
+    if (!supabaseClient) {
+
+        throw new Error(
+            "Supabase ist nicht verbunden."
+        );
+
+    }
+
+
+    await loadTournamentCourses();
+
+    await loadTournamentRounds();
+
+    await loadTournamentPlayers();
+
+    await loadTournamentFlights();
+
+    await loadTournamentScores();
+
+
+    console.log(
+        "Turnierdaten vollständig geladen.",
+        {
+            courses:
+                tournamentCourses.length,
+
+            rounds:
+                tournamentRounds.length,
+
+            players:
+                tournamentPlayers.length,
+
+            flights:
+                tournamentFlights.length,
+
+            scores:
+                tournamentScores.length
+        }
+    );
+}
+
+
+// ============================================================
+// COURSES LADEN
+// ============================================================
+
+async function loadTournamentCourses() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("courses")
+            .select("*")
+            .order(
+                "id",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Courses konnten nicht geladen werden:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    tournamentCourses =
+        data || [];
+}
+
+
+// ============================================================
+// ROUNDS LADEN
+// ============================================================
+
+async function loadTournamentRounds() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("rounds")
+            .select("*")
+            .order(
+                "round_number",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Rounds konnten nicht geladen werden:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    tournamentRounds =
+        data || [];
+}
+
+
+// ============================================================
+// PLAYERS LADEN
+// ============================================================
+
+async function loadTournamentPlayers() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("players")
+            .select("*")
+            .order(
+                "id",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Players konnten nicht geladen werden:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    tournamentPlayers =
+        data || [];
+}
+
+
+// ============================================================
+// FLIGHTS LADEN
+// ============================================================
+
+async function loadTournamentFlights() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("flights")
+            .select("*")
+            .order(
+                "flight_number",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Flights konnten nicht geladen werden:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    tournamentFlights =
+        data || [];
+
+
+    renderFlightSelect();
+}
+
+
+// ============================================================
+// SCORES LADEN
+// ============================================================
+
+async function loadTournamentScores() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("scores")
+            .select(
+                "id, created_at, round, hole, player, score"
+            )
+            .order(
+                "id",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Scores konnten nicht geladen werden:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    tournamentScores =
+        data || [];
+
+
+    console.log(
+        "Tournament-Scores geladen:",
+        tournamentScores.length
+    );
+}
+
+
+// ============================================================
+// FLIGHT DROPDOWN
+// ============================================================
+
+function renderFlightSelect() {
+
+    if (!flightSelect) {
+
+        console.error(
+            "Element #flight-select wurde nicht gefunden."
+        );
+
+        return;
+    }
+
+
+    flightSelect.innerHTML =
+        "";
+
+
+    const emptyOption =
+        document.createElement(
+            "option"
+        );
+
+
+    emptyOption.value =
+        "";
+
+    emptyOption.textContent =
+        "Flight auswählen...";
+
+
+    flightSelect.appendChild(
+        emptyOption
+    );
+
+
+    tournamentFlights.forEach(
+        flight => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                flight.id;
+
+
+            const players =
+                getPlayersForFlight(
+                    flight
+                );
+
+
+            const playerNames =
+                players
+                    .map(
+                        player =>
+                            getPlayerDisplayName(
+                                player
+                            )
+                    )
+                    .filter(Boolean)
+                    .join(
+                        " / "
+                    );
+
+
+            option.textContent =
+                `Flight ${flight.flight_number}` +
+                (
+                    playerNames
+                        ? ` – ${playerNames}`
+                        : ""
+                );
+
+
+            flightSelect.appendChild(
+                option
+            );
+
+        }
+    );
+}
+
+
+// ============================================================
+// SPIELER EINES FLIGHTS
+// ============================================================
+
+function getPlayersForFlight(
+    flight
+) {
+
+    if (!flight) {
+        return [];
+    }
+
+
+    const playerIds = [
+
+        flight.player_1,
+
+        flight.player_2,
+
+        flight.player_3,
+
+        flight.player_4
+
+    ];
+
+
+    return playerIds
+
+        .filter(
+            playerId =>
+                playerId !== null &&
+                playerId !== undefined &&
+                playerId !== ""
+        )
+
+        .map(
+            playerId =>
+                tournamentPlayers.find(
+                    player =>
+                        String(
+                            player.id
+                        ) ===
+                        String(
+                            playerId
+                        )
+                )
+        )
+
+        .filter(Boolean);
+}
+
+
+// ============================================================
+// SPIELERNAME
+// ============================================================
+
+function getPlayerDisplayName(
+    player
+) {
+
+    if (!player) {
+        return "";
+    }
+
+
+    const firstName =
+        player.player_firstname ||
+        player.firstname ||
+        player.first_name ||
+        "";
+
+
+    const surname =
+        player.player_surname ||
+        player.surname ||
+        player.last_name ||
+        "";
+
+
+    return [
+        firstName,
+        surname
+    ]
+        .filter(Boolean)
+        .join(" ");
+}
+
+
+// ============================================================
+// FLIGHT AUSWÄHLEN
+// ============================================================
+
+if (flightSelect) {
+
+    flightSelect.addEventListener(
+        "change",
+        async () => {
+
+            const flightId =
+                flightSelect.value;
+
+
+            if (!flightId) {
+
+                selectedFlight =
+                    null;
+
+                flightPlayers =
+                    [];
+
+                currentRound =
+                    null;
+
+                currentCourse =
+                    null;
+
+                clearScoreInterface();
+
+                updateFlightInfo();
+
+                return;
+            }
+
+
+            selectedFlight =
+                tournamentFlights.find(
+                    flight =>
+                        String(
+                            flight.id
+                        ) ===
+                        String(
+                            flightId
+                        )
+                ) || null;
+
+
+            if (!selectedFlight) {
+
+                console.error(
+                    "Flight konnte nicht gefunden werden."
+                );
+
+                return;
+            }
+
+
+            flightPlayers =
+                getPlayersForFlight(
+                    selectedFlight
+                );
+
+
+            console.log(
+                "Ausgewählter Flight:",
+                selectedFlight
+            );
+
+
+            console.log(
+                "Spieler:",
+                flightPlayers
+            );
+
+
+            updateFlightInfo();
+
+
+            if (
+                flightPlayers.length === 0
+            ) {
+
+                showStatus(
+                    "Dieser Flight hat keine Spieler.",
+                    true
+                );
+
+                clearScoreInterface();
+
+                return;
+            }
+
+
+            await determineNextHoleForFlight();
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// FLIGHT INFO
+// ============================================================
+
+function updateFlightInfo() {
+
+    if (!flightInfo) {
+        return;
+    }
+
+
+    if (!selectedFlight) {
+
+        flightInfo.textContent =
+            "Bitte einen Flight auswählen.";
+
+        return;
+    }
+
+
+    const names =
+        flightPlayers
+            .map(
+                player =>
+                    getPlayerDisplayName(
+                        player
+                    )
+            )
+            .filter(Boolean)
+            .join(
+                " · "
+            );
+
+
+    flightInfo.textContent =
+        names ||
+        "Keine Spieler zugeordnet.";
+}
+
+
+// ============================================================
+// RUNDE → COURSE
+// ============================================================
+
+function getCourseForRound(
+    round
+) {
+
+    if (!round) {
+        return null;
+    }
+
+
+    return (
+        tournamentCourses.find(
+            course =>
+                String(
+                    course.id
+                ) ===
+                String(
+                    round.course_id
+                )
+        ) ||
+        null
+    );
+}
+
+
+// ============================================================
+// COURSE HOLE WERT
+// ============================================================
+
+function getCourseHoleValue(
+    course,
+    hole,
+    type
+) {
+
+    if (!course) {
+        return null;
+    }
+
+
+    const holeNumber =
+        String(
+            hole
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    const column =
+        `${holeNumber}_${type}`;
+
+
+    const value =
+        course[column];
+
+
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
+
+        return null;
+    }
+
+
+    const number =
+        Number(value);
+
+
+    return Number.isFinite(
+        number
+    )
+        ? number
+        : null;
+}
+
+
+// ============================================================
+// PAR
+// ============================================================
+
+function getTournamentPar(
+    round,
+    hole
+) {
+
+    const course =
+        getCourseForRound(
+            round
+        );
+
+
+    return getCourseHoleValue(
+        course,
+        hole,
+        "par"
+    );
+}
+
+
+// ============================================================
+// HCP
+// ============================================================
+
+function getTournamentHcp(
+    round,
+    hole
+) {
+
+    const course =
+        getCourseForRound(
+            round
+        );
+
+
+    return getCourseHoleValue(
+        course,
+        hole,
+        "hcp"
+    );
+}
+
+
+// ============================================================
+// SCORE SUCHEN
+// ============================================================
+
+function getTournamentScore(
+    roundId,
+    hole,
+    playerId
+) {
+
+    const score =
+        tournamentScores.find(
+            row =>
+                String(
+                    row.round
+                ) ===
+                String(
+                    roundId
+                ) &&
+
+                Number(
+                    row.hole
+                ) ===
+                Number(
+                    hole
+                ) &&
+
+                String(
+                    row.player
+                ) ===
+                String(
+                    playerId
+                )
+        );
+
+
+    if (!score) {
+        return null;
+    }
+
+
+    const value =
+        Number(
+            score.score
+        );
+
+
+    return Number.isFinite(
+        value
+    )
+        ? value
+        : null;
+}
+
+
+// ============================================================
+// VERFÜGBARE LÖCHER
+// ============================================================
+
+function getAvailableHolesForRound(
+    round
+) {
+
+    if (!round) {
+        return [];
+    }
+
+
+    const holes = [];
+
+
+    for (
+        let hole = 1;
+        hole <= 18;
+        hole++
+    ) {
+
+        const par =
+            getTournamentPar(
+                round,
+                hole
+            );
+
+
+        if (par === null) {
+
+            continue;
+        }
+
+
+        holes.push(
+            hole
+        );
+    }
+
+
+    return holes;
+}
+
+
+// ============================================================
+// AKTUELLEN RUNDENSTATUS SETZEN
+// ============================================================
+
+function setCurrentRound(
+    roundIndex,
+    holeNumber
+) {
+
+    if (
+        tournamentRounds.length === 0
+    ) {
+
+        currentRound =
+            null;
+
+        currentCourse =
+            null;
+
+        return false;
+    }
+
+
+    if (
+        roundIndex < 0 ||
+        roundIndex >=
+        tournamentRounds.length
+    ) {
+
+        return false;
+    }
+
+
+    const round =
+        tournamentRounds[
+            roundIndex
+        ];
+
+
+    const holes =
+        getAvailableHolesForRound(
+            round
+        );
+
+
+    if (
+        holes.length === 0
+    ) {
+
+        return false;
+    }
+
+
+    currentRoundIndex =
+        roundIndex;
+
+
+    currentRound =
+        round;
+
+
+    currentCourse =
+        getCourseForRound(
+            round
+        );
+
+
+    if (
+        !holes.includes(
+            holeNumber
+        )
+    ) {
+
+        currentHoleNumber =
+            holes[0];
+
+    }
+
+    else {
+
+        currentHoleNumber =
+            holeNumber;
+
+    }
+
+
+    renderHoleNavigation();
+
+    renderCurrentHole();
+
+
+    return true;
+}
+
+
+// ============================================================
+// NÄCHSTES NOCH NICHT VOLLSTÄNDIG GESPIELTES LOCH
+// ============================================================
+
+async function determineNextHoleForFlight() {
+
+    if (
+        !selectedFlight ||
+        flightPlayers.length === 0
+    ) {
+
+        return;
+    }
+
+
+    if (
+        tournamentRounds.length === 0
+    ) {
+
+        clearScoreInterface();
+
+
+        showStatus(
+            "Es sind keine Runden im Turnier vorhanden.",
+            true
+        );
+
+
+        return;
+    }
+
+
+    console.log(
+        "Ermittle nächstes Loch für Flight:",
+        selectedFlight.flight_number
+    );
+
+
+    for (
+        let roundIndex = 0;
+        roundIndex <
+        tournamentRounds.length;
+        roundIndex++
+    ) {
+
+        const round =
+            tournamentRounds[
+                roundIndex
+            ];
+
+
+        const holes =
+            getAvailableHolesForRound(
+                round
+            );
+
+
+        for (
+            const hole of holes
+        ) {
+
+            const complete =
+                flightPlayers.every(
+                    player =>
+                        getTournamentScore(
+                            round.id,
+                            hole,
+                            player.id
+                        ) !== null
+                );
+
+
+            if (!complete) {
+
+                console.log(
+                    "Nächstes Loch:",
+                    {
+                        round:
+                            round.round_number,
+
+                        roundId:
+                            round.id,
+
+                        hole:
+                            hole
+                    }
+                );
+
+
+                setCurrentRound(
+                    roundIndex,
+                    hole
+                );
+
+
+                return;
+            }
+        }
+    }
+
+
+    currentRound =
+        tournamentRounds[
+            tournamentRounds.length - 1
+        ];
+
+
+    currentRoundIndex =
+        tournamentRounds.length - 1;
+
+
+    const finalHoles =
+        getAvailableHolesForRound(
+            currentRound
+        );
+
+
+    currentHoleNumber =
+        finalHoles[
+            finalHoles.length - 1
+        ];
+
+
+    currentCourse =
+        getCourseForRound(
+            currentRound
+        );
+
+
+    renderHoleNavigation();
+
+    renderCurrentHole();
+
+
+    showStatus(
+        "Dieses Turnier wurde von diesem Flight vollständig gespielt.",
+        false
+    );
+}
+
+
+// ============================================================
+// LOCH-NAVIGATION RENDERN
+// ============================================================
+
+function renderHoleNavigation() {
+
+    if (!holeSelect) {
+        return;
+    }
+
+
+    holeSelect.innerHTML =
+        "";
+
+
+    tournamentRounds.forEach(
+        (
+            round,
+            roundIndex
+        ) => {
+
+            const holes =
+                getAvailableHolesForRound(
+                    round
+                );
+
+
+            holes.forEach(
+                hole => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        `${roundIndex}:${hole}`;
+
+
+                    option.textContent =
+                        `Runde ${round.round_number} – Loch ${hole}`;
+
+
+                    if (
+                        roundIndex ===
+                        currentRoundIndex &&
+
+                        hole ===
+                        currentHoleNumber
+                    ) {
+
+                        option.selected =
+                            true;
+                    }
+
+
+                    holeSelect.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+        }
+    );
+}
+
+
+// ============================================================
+// LOCH AUS DROPDOWN
+// ============================================================
+
+if (holeSelect) {
+
+    holeSelect.addEventListener(
+        "change",
+        () => {
+
+            const value =
+                holeSelect.value;
+
+
+            if (!value) {
+                return;
+            }
+
+
+            const parts =
+                value.split(
+                    ":"
+                );
+
+
+            const roundIndex =
+                Number(
+                    parts[0]
+                );
+
+
+            const hole =
+                Number(
+                    parts[1]
+                );
+
+
+            if (
+                !Number.isInteger(
+                    roundIndex
+                ) ||
+                !Number.isInteger(
+                    hole
+                )
+            ) {
+
+                return;
+            }
+
+
+            setCurrentRound(
+                roundIndex,
+                hole
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// VORHERIGES LOCH
+// ============================================================
+
+if (previousHoleButton) {
+
+    previousHoleButton.addEventListener(
+        "click",
+        () => {
+
+            navigateHole(
+                -1
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// NÄCHSTES LOCH
+// ============================================================
+
+if (nextHoleButton) {
+
+    nextHoleButton.addEventListener(
+        "click",
+        () => {
+
+            navigateHole(
+                1
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// LOCH NAVIGIEREN
+// ============================================================
+
+function navigateHole(
+    direction
+) {
+
+    if (
+        tournamentRounds.length === 0
+    ) {
+
+        return;
+    }
+
+
+    let roundIndex =
+        currentRoundIndex;
+
+
+    let holes =
+        getAvailableHolesForRound(
+            tournamentRounds[
+                roundIndex
+            ]
+        );
+
+
+    let holeIndex =
+        holes.indexOf(
+            currentHoleNumber
+        );
+
+
+    if (
+        holeIndex < 0
+    ) {
+
+        holeIndex =
+            0;
+    }
+
+
+    holeIndex +=
+        direction;
+
+
+    if (
+        holeIndex < 0
+    ) {
+
+        roundIndex--;
+
+
+        if (
+            roundIndex < 0
+        ) {
+
+            return;
+        }
+
+
+        holes =
+            getAvailableHolesForRound(
+                tournamentRounds[
+                    roundIndex
+                ]
+            );
+
+
+        if (
+            holes.length === 0
+        ) {
+
+            return;
+        }
+
+
+        holeIndex =
+            holes.length - 1;
+    }
+
+
+    if (
+        holeIndex >=
+        holes.length
+    ) {
+
+        roundIndex++;
+
+
+        if (
+            roundIndex >=
+            tournamentRounds.length
+        ) {
+
+            return;
+        }
+
+
+        holes =
+            getAvailableHolesForRound(
+                tournamentRounds[
+                    roundIndex
+                ]
+            );
+
+
+        if (
+            holes.length === 0
+        ) {
+
+            return;
+        }
+
+
+        holeIndex =
+            0;
+    }
+
+
+    setCurrentRound(
+        roundIndex,
+        holes[
+            holeIndex
+        ]
+    );
+}
+
+
+// ============================================================
+// AKTUELLES LOCH RENDERN
+// ============================================================
+
+function renderCurrentHole() {
+
+    if (
+        !currentRound
+    ) {
+
+        clearScoreInterface();
+
+        return;
+    }
+
+
+    const par =
+        getTournamentPar(
+            currentRound,
+            currentHoleNumber
+        );
+
+
+    const hcp =
+        getTournamentHcp(
+            currentRound,
+            currentHoleNumber
+        );
+
+
+    if (parValue) {
+
+        parValue.textContent =
+            par !== null
+                ? par
+                : "–";
+    }
+
+
+    renderPlayerScoreInputs();
+
+
+    updateNavigationButtons();
+
+
+    console.log(
+        "Aktuelles Turnierloch:",
+        {
+            round:
+                currentRound.round_number,
+
+            roundId:
+                currentRound.id,
+
+            course:
+                currentCourse?.course_name,
+
+            hole:
+                currentHoleNumber,
+
+            par:
+                par,
+
+            hcp:
+                hcp
+        }
+    );
+}
+
+
+// ============================================================
+// SPIELER-EINGABEN RENDERN
+// ============================================================
+
+function renderPlayerScoreInputs() {
+
+    if (!playersCard) {
+
+        console.error(
+            "Kein #players-card gefunden."
+        );
+
+        return;
+    }
+
+
+    playersCard.innerHTML =
+        "";
+
+
+    if (
+        !selectedFlight ||
+        flightPlayers.length === 0
+    ) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+
+        empty.textContent =
+            "Bitte zuerst einen Flight auswählen.";
+
+
+        playersCard.appendChild(
+            empty
+        );
+
+
+        return;
+    }
+
+
+    flightPlayers.forEach(
+        player => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+
+            row.className =
+                "player-row";
+
+
+            row.dataset.playerId =
+                player.id;
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+
+            name.className =
+                "player-name";
+
+
+            name.textContent =
+                getPlayerDisplayName(
+                    player
+                );
+
+
+            row.appendChild(
+                name
+            );
+
+
+            const controls =
+                document.createElement(
+                    "div"
+                );
+
+
+            controls.className =
+                "player-controls";
+
+
+            const minus =
+                document.createElement(
+                    "button"
+                );
+
+
+            minus.type =
+                "button";
+
+
+            minus.className =
+                "score-button";
+
+
+            minus.dataset.action =
+                "minus";
+
+
+            minus.textContent =
+                "−";
+
+
+            const input =
+                document.createElement(
+                    "input"
+                );
+
+
+            input.type =
+                "number";
+
+
+            input.className =
+                "score-input";
+
+
+            input.min =
+                "1";
+
+
+            input.max =
+                "20";
+
+
+            input.step =
+                "1";
+
+
+            input.inputMode =
+                "numeric";
+
+
+            input.dataset.playerId =
+                player.id;
+
+
+            const savedScore =
+                getTournamentScore(
+                    currentRound.id,
+                    currentHoleNumber,
+                    player.id
+                );
+
+
+            if (
+                savedScore !== null
+            ) {
+
+                input.value =
+                    savedScore;
+
+            }
+
+            else {
+
+                const par =
+                    getTournamentPar(
+                        currentRound,
+                        currentHoleNumber
+                    );
+
+
+                input.value =
+                    par !== null
+                        ? par
+                        : "";
+            }
+
+
+            const plus =
+                document.createElement(
+                    "button"
+                );
+
+
+            plus.type =
+                "button";
+
+
+            plus.className =
+                "score-button";
+
+
+            plus.dataset.action =
+                "plus";
+
+
+            plus.textContent =
+                "+";
+
+
+            plus.addEventListener(
+                "click",
+                () => {
+
+                    changeScoreInput(
+                        input,
+                        1
+                    );
+
+                }
+            );
+
+
+            minus.addEventListener(
+                "click",
+                () => {
+
+                    changeScoreInput(
+                        input,
+                        -1
+                    );
+
+                }
+            );
+
+
+            controls.appendChild(
+                minus
+            );
+
+
+            controls.appendChild(
+                input
+            );
+
+
+            controls.appendChild(
+                plus
+            );
+
+
+            row.appendChild(
+                controls
+            );
+
+
+            playersCard.appendChild(
+                row
+            );
+
+        }
+    );
+}
+
+
+// ============================================================
+// SCORE ÄNDERN
+// ============================================================
+
+function changeScoreInput(
+    input,
+    amount
+) {
+
+    let value =
+        Number(
+            input.value
+        );
+
+
+    if (
+        !Number.isFinite(
+            value
+        )
+    ) {
+
+        const par =
+            getTournamentPar(
+                currentRound,
+                currentHoleNumber
+            );
+
+
+        value =
+            par !== null
+                ? par
+                : 1;
+    }
+
+
+    value +=
+        amount;
+
+
+    value =
+        Math.max(
+            1,
+            Math.min(
+                20,
+                value
+            )
+        );
+
+
+    input.value =
+        value;
+}
+
+
+// ============================================================
+// NAVIGATION BUTTONS AKTUALISIEREN
+// ============================================================
+
+function updateNavigationButtons() {
+
+    if (
+        !currentRound
+    ) {
+
+        if (previousHoleButton) {
+            previousHoleButton.disabled =
+                true;
+        }
+
+        if (nextHoleButton) {
+            nextHoleButton.disabled =
+                true;
+        }
+
+        return;
+    }
+
+
+    const firstRound =
+        currentRoundIndex === 0;
+
+
+    const currentRoundHoles =
+        getAvailableHolesForRound(
+            currentRound
+        );
+
+
+    const firstHole =
+        currentHoleNumber ===
+        currentRoundHoles[0];
+
+
+    const lastRound =
+        currentRoundIndex ===
+        tournamentRounds.length - 1;
+
+
+    const lastHole =
+        currentHoleNumber ===
+        currentRoundHoles[
+            currentRoundHoles.length - 1
+        ];
+
+
+    if (previousHoleButton) {
+
+        previousHoleButton.disabled =
+            firstRound &&
+            firstHole;
+    }
+
+
+    if (nextHoleButton) {
+
+        nextHoleButton.disabled =
+            lastRound &&
+            lastHole;
+    }
+}
+
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function showStatus(
+    message,
+    isError = false
+) {
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    if (!status) {
+
+        console.log(
+            isError
+                ? "FEHLER:"
+                : "STATUS:",
+            message
+        );
+
+        return;
+    }
+
+
+    status.textContent =
+        message;
+
+
+    status.style.display =
+        "block";
+
+
+    status.style.background =
+        isError
+            ? "#f3d4d4"
+            : "#e6e6e6";
+}
+
+
+// ============================================================
+// SCORE SPEICHERN
+// ============================================================
+
+if (saveButton) {
+
+    saveButton.addEventListener(
+        "click",
+        saveCurrentHoleScores
+    );
+
+}
+
+
+// ============================================================
+// AKTUELLES LOCH SPEICHERN
+// ============================================================
+
+async function saveCurrentHoleScores() {
+
+    if (
+        !supabaseClient
+    ) {
+
+        showStatus(
+            "Supabase ist nicht verbunden.",
+            true
+        );
+
+        return;
+    }
+
+
+    if (
+        !selectedFlight
+    ) {
+
+        showStatus(
+            "Bitte zuerst einen Flight auswählen.",
+            true
+        );
+
+        return;
+    }
+
+
+    if (
+        !currentRound
+    ) {
+
+        showStatus(
+            "Es wurde keine Runde ausgewählt.",
+            true
+        );
+
+        return;
+    }
+
+
+    if (
+        flightPlayers.length === 0
+    ) {
+
+        showStatus(
+            "Der Flight enthält keine Spieler.",
+            true
+        );
+
+        return;
+    }
+
+
+    const inputs =
+        playersCard
+            ? playersCard.querySelectorAll(
+                ".score-input"
+            )
+            : [];
+
+
+    if (
+        inputs.length !==
+        flightPlayers.length
+    ) {
+
+        showStatus(
+            "Die Spieler-Eingaben konnten nicht gefunden werden.",
+            true
+        );
+
+        return;
+    }
+
+
+    const scoresToSave =
+        [];
+
+
+    for (
+        const input of inputs
+    ) {
+
+        const playerId =
+            input.dataset.playerId;
+
+
+        const score =
+            Number(
+                input.value
+            );
+
+
+        if (
+            !playerId
+        ) {
+
+            showStatus(
+                "Ein Spieler konnte nicht identifiziert werden.",
+                true
+            );
+
+            return;
+        }
+
+
+        if (
+            !Number.isFinite(
+                score
+            ) ||
+            score < 1 ||
+            score > 20
+        ) {
+
+            showStatus(
+                "Bitte für alle Spieler einen gültigen Score von 1 bis 20 eingeben.",
+                true
+            );
+
+            input.focus();
+
+            return;
+        }
+
+
+        scoresToSave.push(
+            {
+                round:
+                    currentRound.id,
+
+                hole:
+                    currentHoleNumber,
+
+                player:
+                    playerId,
+
+                score:
+                    score
+            }
+        );
+
+    }
+
+
+    saveButton.disabled =
+        true;
+
+
+    saveButton.textContent =
+        "WIRD GESPEICHERT …";
+
+
+    try {
+
+        for (
+            const scoreData
+            of scoresToSave
+        ) {
+
+            const {
+                data:
+                    existingScore,
+                error:
+                    selectError
+            } =
+                await supabaseClient
+                    .from("scores")
+                    .select("id")
+                    .eq(
+                        "round",
+                        scoreData.round
+                    )
+                    .eq(
+                        "hole",
+                        scoreData.hole
+                    )
+                    .eq(
+                        "player",
+                        scoreData.player
+                    )
+                    .maybeSingle();
+
+
+            if (selectError) {
+
+                throw selectError;
+            }
+
+
+            if (
+                existingScore
+            ) {
+
+                const {
+                    error:
+                        updateError
+                } =
+                    await supabaseClient
+                        .from("scores")
+                        .update(
+                            {
+                                score:
+                                    scoreData.score
+                            }
+                        )
+                        .eq(
+                            "id",
+                            existingScore.id
+                        );
+
+
+                if (updateError) {
+
+                    throw updateError;
+                }
+
+
+                const localScore =
+                    tournamentScores.find(
+                        row =>
+                            String(
+                                row.id
+                            ) ===
+                            String(
+                                existingScore.id
+                            )
+                    );
+
+
+                if (localScore) {
+
+                    localScore.score =
+                        scoreData.score;
+
+                }
+
+            }
+
+            else {
+
+                const {
+                    data:
+                        insertedScore,
+                    error:
+                        insertError
+                } =
+                    await supabaseClient
+                        .from("scores")
+                        .insert(
+                            [
+                                scoreData
+                            ]
+                        )
+                        .select(
+                            "id, created_at, round, hole, player, score"
+                        )
+                        .single();
+
+
+                if (insertError) {
+
+                    throw insertError;
+                }
+
+
+                tournamentScores.push(
+                    insertedScore
+                );
+
+            }
+
+        }
+
+
+        showStatus(
+            `Runde ${currentRound.round_number} – Loch ${currentHoleNumber} gespeichert.`,
+            false
+        );
+
+
+        await determineNextHoleForFlight();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Scores konnten nicht gespeichert werden:",
+            error
+        );
+
+
+        showStatus(
+            error?.message ||
+            "Scores konnten nicht gespeichert werden.",
+            true
+        );
+
+    }
+
+    finally {
+
+        saveButton.disabled =
+            false;
+
+
+        saveButton.textContent =
+            "SCHLÄGE SPEICHERN";
+
+    }
+}
+
+
+// ============================================================
+// INTERFACE LEEREN
+// ============================================================
+
+function clearScoreInterface() {
+
+    if (holeSelect) {
+
+        holeSelect.innerHTML =
+            "";
+
+    }
+
+
+    if (playersCard) {
+
+        playersCard.innerHTML =
+            `
+                <div class="player-row">
+                    <div class="player-name">
+                        Bitte einen Flight auswählen.
+                    </div>
+                </div>
+            `;
+    }
+
+
+    if (parValue) {
+
+        parValue.textContent =
+            "–";
+    }
+
+
+    if (previousHoleButton) {
+
+        previousHoleButton.disabled =
+            true;
+    }
+
+
+    if (nextHoleButton) {
+
+        nextHoleButton.disabled =
+            true;
+    }
+}
+
+
+// ============================================================
+// TURNIER KOMPLETT ZURÜCKSETZEN
+// ============================================================
+
+if (
+    resetTournamentButton
+) {
+
+    resetTournamentButton.addEventListener(
+        "click",
+        async () => {
+
+            const confirmed =
+                window.confirm(
+                    "Soll wirklich das komplette Turnier gelöscht werden?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            if (
+                !supabaseClient
+            ) {
+
+                showStatus(
+                    "Supabase ist nicht verbunden.",
+                    true
+                );
+
+                return;
+            }
+
+
+            resetTournamentButton.disabled =
+                true;
+
+
+            try {
+
+                const {
+                    error
+                } =
+                    await supabaseClient
+                        .from("scores")
+                        .delete()
+                        .not(
+                            "id",
+                            "is",
+                            null
+                        );
+
+
+                if (error) {
+
+                    throw error;
+                }
+
+
+                tournamentScores =
+                    [];
+
+
+                clearScoreInterface();
+
+
+                showStatus(
+                    "Alle Scores des Turniers wurden zurückgesetzt.",
+                    false
+                );
+
+
+                if (
+                    selectedFlight
+                ) {
+
+                    await determineNextHoleForFlight();
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Turnier konnte nicht zurückgesetzt werden:",
+                    error
+                );
+
+
+                showStatus(
+                    error?.message ||
+                    "Turnier konnte nicht zurückgesetzt werden.",
+                    true
+                );
+
+            }
+
+            finally {
+
+                resetTournamentButton.disabled =
+                    false;
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// NEWS
+// ============================================================
+
+
+// ============================================================
+// NEWS ELEMENTE
+// ============================================================
+
+const newsFab =
+    document.getElementById(
+        "news-fab"
+    );
+
+const newsPanel =
+    document.getElementById(
+        "news-panel"
+    );
+
+const newsClose =
+    document.getElementById(
+        "news-close"
+    );
+
+const newsNew =
+    document.getElementById(
+        "news-new"
+    );
+
+const newsSubmit =
+    document.getElementById(
+        "news-submit"
+    );
+
+const newsTitle =
+    document.getElementById(
+        "news-title"
+    );
+
+const newsContent =
+    document.getElementById(
+        "news-content"
+    );
+
+const newsMedia =
+    document.getElementById(
+        "news-media"
+    );
+
+const newsMediaPreview =
+    document.getElementById(
+        "news-media-preview"
+    );
+
+const newsDelete =
+    document.getElementById(
+        "news-delete"
+    );
+
+const previousNews =
+    document.getElementById(
+        "previous-news"
+    );
+
+const nextNews =
+    document.getElementById(
+        "next-news"
+    );
+
+const newsCounter =
+    document.getElementById(
+        "news-counter"
+    );
+
+const newsHeaderTitle =
+    document.getElementById(
+        "news-header-title"
+    );
+
+
+// ============================================================
+// NEWS DATEN
+// ============================================================
+
+let newsPosts = [];
+
+let currentNewsIndex =
+    -1;
+
+let currentNewsId =
+    null;
+
+
+// ============================================================
+// DATUM / UHRZEIT
+// ============================================================
+
+function formatNewsDateTime(
+    dateString
+) {
+
+    if (!dateString) {
+
+        return "";
+
+    }
+
+
+    const date =
+        new Date(
+            dateString
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "";
+
+    }
+
+
+    return new Intl.DateTimeFormat(
+        "de-DE",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    ).format(
+        date
+    );
+
+}
+
+
+// ============================================================
+// NEWS MEDIUM HOCHLADEN
+// ============================================================
+
+async function uploadNewsMedia(
+    file,
+    newsId
+) {
+
+    if (!file) {
+
+        return null;
+
+    }
+
+
+    if (!newsId) {
+
+        throw new Error(
+            "Keine News-ID für den Medien-Upload vorhanden."
+        );
+
+    }
+
+
+    let mediaType =
+        null;
+
+
+    if (
+        file.type.startsWith("image/")
+    ) {
+
+        mediaType =
+            "image";
+
+    }
+
+    else if (
+        file.type.startsWith("video/")
+    ) {
+
+        mediaType =
+            "video";
+
+    }
+
+    else {
+
+        throw new Error(
+            "Nur Bilder und Videos sind erlaubt."
+        );
+
+    }
+
+
+    const maxFileSize =
+        100 * 1024 * 1024;
+
+
+    if (
+        file.size > maxFileSize
+    ) {
+
+        throw new Error(
+            "Die Datei ist zu groß. Maximum: 100 MB."
+        );
+
+    }
+
+
+    const fileExtension =
+        file.name.includes(".")
+            ? file.name
+                .split(".")
+                .pop()
+                .toLowerCase()
+            : "";
+
+
+    const fileName =
+        `${crypto.randomUUID()}` +
+        (
+            fileExtension
+                ? `.${fileExtension}`
+                : ""
+        );
+
+
+    const storagePath =
+        `${newsId}/${fileName}`;
+
+
+    const {
+        error:
+            uploadError
+    } =
+        await supabaseClient
+            .storage
+            .from("news-media")
+            .upload(
+                storagePath,
+                file,
+                {
+                    contentType:
+                        file.type,
+
+                    upsert:
+                        false
+                }
+            );
+
+
+    if (uploadError) {
+
+        console.error(
+            "News-Medium konnte nicht hochgeladen werden:",
+            uploadError
+        );
+
+        throw uploadError;
+
+    }
+
+
+    const {
+        data:
+            publicUrlData
+    } =
+        supabaseClient
+            .storage
+            .from("news-media")
+            .getPublicUrl(
+                storagePath
+            );
+
+
+    const publicUrl =
+        publicUrlData.publicUrl;
+
+
+    const {
+        data:
+            mediaData,
+        error:
+            mediaError
+    } =
+        await supabaseClient
+            .from("news_media")
+            .insert([
+                {
+                    news_id:
+                        newsId,
+
+                    storage_path:
+                        storagePath,
+
+                    media_type:
+                        mediaType
+                }
+            ])
+            .select()
+            .single();
+
+
+    if (mediaError) {
+
+        await supabaseClient
+            .storage
+            .from("news-media")
+            .remove([
+                storagePath
+            ]);
+
+        throw mediaError;
+
+    }
+
+
+    return {
+        ...mediaData,
+
+        publicUrl
+    };
+
+}
+
+
+// ============================================================
+// NEWS MEDIEN LADEN
+// ============================================================
+
+async function loadNewsMedia(
+    newsId
+) {
+
+    if (!newsId) {
+
+        return [];
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("news_media")
+            .select(
+                "id, news_id, storage_path, media_type, created_at"
+            )
+            .eq(
+                "news_id",
+                newsId
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "News-Medien konnten nicht geladen werden:",
+            error
+        );
+
+        return [];
+
+    }
+
+
+    return (
+        data || []
+    )
+        .map(
+            media => {
+
+                const {
+                    data:
+                        publicUrlData
+                } =
+                    supabaseClient
+                        .storage
+                        .from("news-media")
+                        .getPublicUrl(
+                            media.storage_path
+                        );
+
+
+                return {
+                    ...media,
+
+                    publicUrl:
+                        publicUrlData.publicUrl
+                };
+
+            }
+        );
+
+}
+
+
+// ============================================================
+// NEWS MEDIEN VORSCHAU
+// ============================================================
+
+function renderNewsMediaPreview(
+    mediaList
+) {
+
+    if (!newsMediaPreview) {
+
+        return;
+
+    }
+
+
+    newsMediaPreview.innerHTML =
+        "";
+
+
+    if (
+        !mediaList ||
+        mediaList.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    mediaList.forEach(
+        media => {
+
+            const wrapper =
+                document.createElement(
+                    "div"
+                );
+
+
+            const label =
+                document.createElement(
+                    "div"
+                );
+
+
+            label.className =
+                "news-media-preview-label";
+
+
+            label.textContent =
+                media.media_type === "video"
+                    ? "Vorhandenes Video"
+                    : "Vorhandenes Bild";
+
+
+            wrapper.appendChild(
+                label
+            );
+
+
+            if (
+                media.media_type === "image"
+            ) {
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+
+                image.src =
+                    media.publicUrl;
+
+
+                image.alt =
+                    "News-Bild";
+
+
+                image.loading =
+                    "lazy";
+
+
+                wrapper.appendChild(
+                    image
+                );
+
+            }
+
+            else if (
+                media.media_type === "video"
+            ) {
+
+                const video =
+                    document.createElement(
+                        "video"
+                    );
+
+
+                video.src =
+                    media.publicUrl;
+
+
+                video.controls =
+                    true;
+
+
+                video.playsInline =
+                    true;
+
+
+                wrapper.appendChild(
+                    video
+                );
+
+            }
+
+
+            newsMediaPreview.appendChild(
+                wrapper
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// NEWS MEDIUM VORSCHAU
+// ============================================================
+
+function previewSelectedNewsMedia() {
+
+    if (!newsMedia) {
+
+        return;
+
+    }
+
+
+    const file =
+        newsMedia.files.length > 0
+            ? newsMedia.files[0]
+            : null;
+
+
+    if (!file) {
+
+        return;
+
+    }
+
+
+    newsMediaPreview.innerHTML =
+        "";
+
+
+    const label =
+        document.createElement(
+            "div"
+        );
+
+
+    label.className =
+        "news-media-preview-label";
+
+
+    label.textContent =
+        "Ausgewähltes Medium";
+
+
+    newsMediaPreview.appendChild(
+        label
+    );
+
+
+    const objectUrl =
+        URL.createObjectURL(
+            file
+        );
+
+
+    if (
+        file.type.startsWith("image/")
+    ) {
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+
+        image.src =
+            objectUrl;
+
+
+        image.alt =
+            "Vorschau";
+
+
+        newsMediaPreview.appendChild(
+            image
+        );
+
+    }
+
+    else if (
+        file.type.startsWith("video/")
+    ) {
+
+        const video =
+            document.createElement(
+                "video"
+            );
+
+
+        video.src =
+            objectUrl;
+
+
+        video.controls =
+            true;
+
+
+        video.playsInline =
+            true;
+
+
+        newsMediaPreview.appendChild(
+            video
+        );
+
+    }
+
+
+    const removeButton =
+        document.createElement(
+            "button"
+        );
+
+
+    removeButton.type =
+        "button";
+
+
+    removeButton.className =
+        "news-media-remove";
+
+
+    removeButton.textContent =
+        "Auswahl entfernen";
+
+
+    removeButton.addEventListener(
+        "click",
+        () => {
+
+            newsMedia.value =
+                "";
+
+
+            newsMediaPreview.innerHTML =
+                "";
+
+
+            URL.revokeObjectURL(
+                objectUrl
+            );
+
+
+            if (currentNewsId) {
+
+                loadNewsMedia(
+                    currentNewsId
+                )
+                    .then(
+                        renderNewsMediaPreview
+                    );
+
+            }
+
+        }
+    );
+
+
+    newsMediaPreview.appendChild(
+        removeButton
+    );
+
+}
+
+
+// ============================================================
+// NEWS DATEIAUSWAHL
+// ============================================================
+
+if (newsMedia) {
+
+    newsMedia.addEventListener(
+        "change",
+        () => {
+
+            const file =
+                newsMedia.files.length > 0
+                    ? newsMedia.files[0]
+                    : null;
+
+
+            if (!file) {
+
+                if (currentNewsId) {
+
+                    loadNewsMedia(
+                        currentNewsId
+                    )
+                        .then(
+                            renderNewsMediaPreview
+                        );
+
+                }
+
+                else {
+
+                    newsMediaPreview.innerHTML =
+                        "";
+
+                }
+
+                return;
+
+            }
+
+
+            const isImage =
+                file.type.startsWith(
+                    "image/"
+                );
+
+
+            const isVideo =
+                file.type.startsWith(
+                    "video/"
+                );
+
+
+            if (
+                !isImage &&
+                !isVideo
+            ) {
+
+                newsMedia.value =
+                    "";
+
+
+                newsMediaPreview.innerHTML =
+                    "";
+
+
+                showStatus(
+                    "Bitte nur Bilder oder Videos auswählen.",
+                    true
+                );
+
+
+                return;
+
+            }
+
+
+            previewSelectedNewsMedia();
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// NEWS LADEN
+// ============================================================
+
+async function loadNews() {
+
+    if (!supabaseClient) {
+
+        showStatus(
+            "Supabase ist nicht verbunden.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("news")
+                .select(
+                    "id, title, content, published, created_at"
+                )
+                .eq(
+                    "published",
+                    true
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: true
+                    }
+                );
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        newsPosts =
+            data || [];
+
+
+        prepareNewNews();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Fehler beim Laden der News:",
+            error
+        );
+
+
+        showStatus(
+            "News konnten nicht geladen werden.",
+            true
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// NEUEN NEWS-POST VORBEREITEN
+// ============================================================
+
+function prepareNewNews() {
+
+    currentNewsIndex =
+        -1;
+
+
+    currentNewsId =
+        null;
+
+
+    if (newsTitle) {
+
+        newsTitle.value =
+            "";
+
+    }
+
+
+    if (newsContent) {
+
+        newsContent.value =
+            "";
+
+    }
+
+
+    if (newsMedia) {
+
+        newsMedia.value =
+            "";
+
+    }
+
+
+    if (newsMediaPreview) {
+
+        newsMediaPreview.innerHTML =
+            "";
+
+    }
+
+
+    if (newsHeaderTitle) {
+
+        newsHeaderTitle.textContent =
+            "NEWS POSTEN";
+
+    }
+
+
+    if (newsCounter) {
+
+        newsCounter.textContent =
+            "Neuer Post";
+
+    }
+
+
+    if (newsSubmit) {
+
+        newsSubmit.textContent =
+            "NEWS VERÖFFENTLICHEN";
+
+    }
+
+
+    if (newsDelete) {
+
+        newsDelete.disabled =
+            true;
+
+    }
+
+
+    if (previousNews) {
+
+        previousNews.disabled =
+            newsPosts.length === 0;
+
+    }
+
+
+    if (nextNews) {
+
+        nextNews.disabled =
+            newsPosts.length === 0;
+
+    }
+
+}
+
+
+// ============================================================
+// NEWS POST ANZEIGEN
+// ============================================================
+
+async function showNewsPost() {
+
+    if (
+        newsPosts.length === 0
+    ) {
+
+        prepareNewNews();
+
+        return;
+
+    }
+
+
+    if (
+        currentNewsIndex < 0 ||
+        currentNewsIndex >=
+        newsPosts.length
+    ) {
+
+        prepareNewNews();
+
+        return;
+
+    }
+
+
+    const post =
+        newsPosts[
+            currentNewsIndex
+        ];
+
+
+    currentNewsId =
+        post.id;
+
+
+    newsTitle.value =
+        post.title || "";
+
+
+    newsContent.value =
+        post.content || "";
+
+
+    newsMedia.value =
+        "";
+
+
+    newsMediaPreview.innerHTML =
+        "";
+
+
+    const mediaList =
+        await loadNewsMedia(
+            post.id
+        );
+
+
+    renderNewsMediaPreview(
+        mediaList
+    );
+
+
+    newsHeaderTitle.textContent =
+        "NEWS BEARBEITEN";
+
+
+    const formattedDate =
+        formatNewsDateTime(
+            post.created_at
+        );
+
+
+    newsCounter.textContent =
+        `${currentNewsIndex + 1} von ${newsPosts.length}` +
+        (
+            formattedDate
+                ? ` · ${formattedDate}`
+                : ""
+        );
+
+
+    previousNews.disabled =
+        currentNewsIndex <= 0;
+
+
+    nextNews.disabled =
+        currentNewsIndex >=
+        newsPosts.length - 1;
+
+
+    newsDelete.disabled =
+        false;
+
+
+    newsSubmit.textContent =
+        "NEWS ÄNDERN";
+
+}
+
+
+// ============================================================
+// NEWS BUTTON – NEU
+// ============================================================
+
+if (newsNew) {
+
+    newsNew.addEventListener(
+        "click",
+        () => {
+
+            prepareNewNews();
+
+
+            if (newsTitle) {
+
+                newsTitle.focus();
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// NEWS – VORHERIGER POST
+// ============================================================
+
+function showPreviousNews() {
+
+    if (
+        newsPosts.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        currentNewsIndex < 0
+    ) {
+
+        currentNewsIndex =
+            newsPosts.length - 1;
+
+
+        showNewsPost();
+
+
+        return;
+
+    }
+
+
+    if (
+        currentNewsIndex <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    currentNewsIndex--;
+
+
+    showNewsPost();
+
+}
+
+
+// ============================================================
+// NEWS – NÄCHSTER POST
+// ============================================================
+
+function showNextNews() {
+
+    if (
+        newsPosts.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        currentNewsIndex < 0
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        currentNewsIndex >=
+        newsPosts.length - 1
+    ) {
+
+        return;
+
+    }
+
+
+    currentNewsIndex++;
+
+
+    showNewsPost();
+
+}
+
+
+// ============================================================
+// NEWS NAVIGATION
+// ============================================================
+
+if (previousNews) {
+
+    previousNews.addEventListener(
+        "click",
+        showPreviousNews
+    );
+
+}
+
+
+if (nextNews) {
+
+    nextNews.addEventListener(
+        "click",
+        showNextNews
+    );
+
+}
+
+
+// ============================================================
+// NEWS PFEILTASTEN
+// ============================================================
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            !newsPanel ||
+            !newsPanel.classList.contains(
+                "open"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        const activeElement =
+            document.activeElement;
+
+
+        const isTextInput =
+            activeElement === newsTitle ||
+            activeElement === newsContent;
+
+
+        if (isTextInput) {
+
+            return;
+
+        }
+
+
+        if (
+            event.key === "ArrowLeft"
+        ) {
+
+            event.preventDefault();
+
+            showPreviousNews();
+
+        }
+
+
+        if (
+            event.key === "ArrowRight"
+        ) {
+
+            event.preventDefault();
+
+            showNextNews();
+
+        }
+
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            newsPanel.classList.remove(
+                "open"
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// NEWS PANEL ÖFFNEN / SCHLIESSEN
+// ============================================================
+
+if (newsFab) {
+
+    newsFab.addEventListener(
+        "click",
+        async () => {
+
+            const isOpen =
+                newsPanel.classList.contains(
+                    "open"
+                );
+
+
+            if (isOpen) {
+
+                newsPanel.classList.remove(
+                    "open"
+                );
+
+                return;
+
+            }
+
+
+            newsPanel.classList.add(
+                "open"
+            );
+
+
+            await loadNews();
+
+        }
+    );
+
+}
+
+
+if (newsClose) {
+
+    newsClose.addEventListener(
+        "click",
+        () => {
+
+            newsPanel.classList.remove(
+                "open"
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// NEWS ERSTELLEN / ÄNDERN
+// ============================================================
+
+if (newsSubmit) {
+
+    newsSubmit.addEventListener(
+        "click",
+        async () => {
+
+            const title =
+                newsTitle.value.trim();
+
+
+            const content =
+                newsContent.value.trim();
+
+
+            const selectedFile =
+                newsMedia.files.length > 0
+                    ? newsMedia.files[0]
+                    : null;
+
+
+            if (!title) {
+
+                showStatus(
+                    "Bitte eine Überschrift eingeben.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            if (!content) {
+
+                showStatus(
+                    "Bitte eine Nachricht eingeben.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            if (!supabaseClient) {
+
+                showStatus(
+                    "Supabase ist nicht verbunden.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            if (selectedFile) {
+
+                const isImage =
+                    selectedFile.type.startsWith(
+                        "image/"
+                    );
+
+
+                const isVideo =
+                    selectedFile.type.startsWith(
+                        "video/"
+                    );
+
+
+                if (
+                    !isImage &&
+                    !isVideo
+                ) {
+
+                    showStatus(
+                        "Bitte nur Bilder oder Videos auswählen.",
+                        true
+                    );
+
+                    return;
+
+                }
+
+
+                const maxFileSize =
+                    100 * 1024 * 1024;
+
+
+                if (
+                    selectedFile.size >
+                    maxFileSize
+                ) {
+
+                    showStatus(
+                        "Die Datei ist zu groß. Maximum: 100 MB.",
+                        true
+                    );
+
+                    return;
+
+                }
+
+            }
+
+
+            newsSubmit.disabled =
+                true;
+
+
+            try {
+
+                let savedPost =
+                    null;
+
+
+                // ==================================================
+                // BESTEHENDEN POST AKTUALISIEREN
+                // ==================================================
+
+                if (currentNewsId) {
+
+                    newsSubmit.textContent =
+                        "WIRD AKTUALISIERT …";
+
+
+                    const {
+                        error
+                    } =
+                        await supabaseClient
+                            .from("news")
+                            .update({
+                                title:
+                                    title,
+
+                                content:
+                                    content
+                            })
+                            .eq(
+                                "id",
+                                currentNewsId
+                            );
+
+
+                    if (error) {
+
+                        throw error;
+
+                    }
+
+
+                    savedPost = {
+                        ...newsPosts[
+                            currentNewsIndex
+                        ],
+
+                        title:
+                            title,
+
+                        content:
+                            content
+                    };
+
+
+                    newsPosts[
+                        currentNewsIndex
+                    ] =
+                        savedPost;
+
+
+                    if (selectedFile) {
+
+                        newsSubmit.textContent =
+                            "MEDIUM WIRD HOCHGELADEN …";
+
+
+                        const oldMedia =
+                            await loadNewsMedia(
+                                currentNewsId
+                            );
+
+
+                        const newMedia =
+                            await uploadNewsMedia(
+                                selectedFile,
+                                currentNewsId
+                            );
+
+
+                        if (
+                            oldMedia.length > 0
+                        ) {
+
+                            const oldStoragePaths =
+                                oldMedia
+                                    .map(
+                                        media =>
+                                            media.storage_path
+                                    )
+                                    .filter(Boolean);
+
+
+                            if (
+                                oldStoragePaths.length > 0
+                            ) {
+
+                                await supabaseClient
+                                    .storage
+                                    .from("news-media")
+                                    .remove(
+                                        oldStoragePaths
+                                    );
+
+                            }
+
+
+                            await supabaseClient
+                                .from("news_media")
+                                .delete()
+                                .eq(
+                                    "news_id",
+                                    currentNewsId
+                                )
+                                .neq(
+                                    "id",
+                                    newMedia.id
+                                );
+
+                        }
+
+                    }
+
+
+                    showStatus(
+                        selectedFile
+                            ? "News und Medium wurden aktualisiert."
+                            : "News wurde aktualisiert.",
+                        false
+                    );
+
+                }
+
+
+                // ==================================================
+                // NEUEN POST
+                // ==================================================
+
+                else {
+
+                    newsSubmit.textContent =
+                        "WIRD VERÖFFENTLICHT …";
+
+
+                    const {
+                        data,
+                        error
+                    } =
+                        await supabaseClient
+                            .from("news")
+                            .insert([
+                                {
+                                    title:
+                                        title,
+
+                                    content:
+                                        content,
+
+                                    published:
+                                        true
+                                }
+                            ])
+                            .select()
+                            .single();
+
+
+                    if (error) {
+
+                        throw error;
+
+                    }
+
+
+                    savedPost =
+                        data;
+
+
+                    if (
+                        selectedFile &&
+                        savedPost
+                    ) {
+
+                        newsSubmit.textContent =
+                            "MEDIUM WIRD HOCHGELADEN …";
+
+
+                        await uploadNewsMedia(
+                            selectedFile,
+                            savedPost.id
+                        );
+
+                    }
+
+
+                    newsPosts.push(
+                        savedPost
+                    );
+
+
+                    currentNewsIndex =
+                        newsPosts.length - 1;
+
+
+                    currentNewsId =
+                        savedPost.id;
+
+
+                    showStatus(
+                        selectedFile
+                            ? "News und Medium wurden veröffentlicht."
+                            : "News wurde veröffentlicht.",
+                        false
+                    );
+
+                }
+
+
+                newsTitle.value =
+                    title;
+
+
+                newsContent.value =
+                    content;
+
+
+                newsMedia.value =
+                    "";
+
+
+                if (currentNewsId) {
+
+                    const mediaList =
+                        await loadNewsMedia(
+                            currentNewsId
+                        );
+
+
+                    renderNewsMediaPreview(
+                        mediaList
+                    );
+
+                }
+
+
+                updateNewsNavigation();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Fehler beim Speichern der News:",
+                    error
+                );
+
+
+                showStatus(
+                    error && error.message
+                        ? error.message
+                        : "News konnte nicht gespeichert werden.",
+                    true
+                );
+
+            }
+
+            finally {
+
+                newsSubmit.disabled =
+                    false;
+
+
+                newsSubmit.textContent =
+                    currentNewsId
+                        ? "NEWS ÄNDERN"
+                        : "NEWS VERÖFFENTLICHEN";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// NEWS NAVIGATION AKTUALISIEREN
+// ============================================================
+
+function updateNewsNavigation() {
+
+    if (
+        newsPosts.length === 0
+    ) {
+
+        previousNews.disabled =
+            true;
+
+
+        nextNews.disabled =
+            true;
+
+
+        newsCounter.textContent =
+            "Neuer Post";
+
+
+        return;
+
+    }
+
+
+    if (
+        currentNewsIndex < 0
+    ) {
+
+        previousNews.disabled =
+            false;
+
+
+        nextNews.disabled =
+            false;
+
+
+        newsCounter.textContent =
+            "Neuer Post";
+
+
+        return;
+
+    }
+
+
+    previousNews.disabled =
+        currentNewsIndex <= 0;
+
+
+    nextNews.disabled =
+        currentNewsIndex >=
+        newsPosts.length - 1;
+
+
+    const post =
+        newsPosts[
+            currentNewsIndex
+        ];
+
+
+    const formattedDate =
+        formatNewsDateTime(
+            post.created_at
+        );
+
+
+    newsCounter.textContent =
+        `${currentNewsIndex + 1} von ${newsPosts.length}` +
+        (
+            formattedDate
+                ? ` · ${formattedDate}`
+                : ""
+        );
+
+}
+
+
+// ============================================================
+// NEWS LÖSCHEN
+// ============================================================
+
+if (newsDelete) {
+
+    newsDelete.addEventListener(
+        "click",
+        async () => {
+
+            if (
+                currentNewsId === null ||
+                currentNewsIndex < 0 ||
+                currentNewsIndex >=
+                    newsPosts.length
+            ) {
+
+                showStatus(
+                    "Es ist kein bestehender Post ausgewählt.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            const confirmed =
+                confirm(
+                    "Soll dieser News-Post wirklich gelöscht werden?"
+                );
+
+
+            if (!confirmed) {
+
+                return;
+
+            }
+
+
+            if (!supabaseClient) {
+
+                showStatus(
+                    "Supabase ist nicht verbunden.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            newsDelete.disabled =
+                true;
+
+
+            newsSubmit.disabled =
+                true;
+
+
+            newsDelete.textContent =
+                "WIRD GELÖSCHT …";
+
+
+            try {
+
+                const postId =
+                    currentNewsId;
+
+
+                const mediaList =
+                    await loadNewsMedia(
+                        postId
+                    );
+
+
+                if (
+                    mediaList.length > 0
+                ) {
+
+                    const storagePaths =
+                        mediaList
+                            .map(
+                                media =>
+                                    media.storage_path
+                            )
+                            .filter(Boolean);
+
+
+                    if (
+                        storagePaths.length > 0
+                    ) {
+
+                        const {
+                            error:
+                                storageError
+                        } =
+                            await supabaseClient
+                                .storage
+                                .from("news-media")
+                                .remove(
+                                    storagePaths
+                                );
+
+
+                        if (storageError) {
+
+                            throw storageError;
+
+                        }
+
+                    }
+
+                }
+
+
+                const {
+                    error:
+                        mediaDatabaseError
+                } =
+                    await supabaseClient
+                        .from("news_media")
+                        .delete()
+                        .eq(
+                            "news_id",
+                            postId
+                        );
+
+
+                if (mediaDatabaseError) {
+
+                    throw mediaDatabaseError;
+
+                }
+
+
+                const {
+                    error
+                } =
+                    await supabaseClient
+                        .from("news")
+                        .delete()
+                        .eq(
+                            "id",
+                            postId
+                        );
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                newsPosts.splice(
+                    currentNewsIndex,
+                    1
+                );
+
+
+                prepareNewNews();
+
+
+                showStatus(
+                    "News und zugehörige Medien wurden gelöscht.",
+                    false
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Fehler beim Löschen der News:",
+                    error
+                );
+
+
+                showStatus(
+                    "Beim Löschen der News ist ein Fehler aufgetreten.",
+                    true
+                );
+
+            }
+
+            finally {
+
+                newsDelete.disabled =
+                    currentNewsId === null;
+
+
+                newsSubmit.disabled =
+                    false;
+
+
+                newsDelete.textContent =
+                    "NEWS LÖSCHEN";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// START DER GESAMTEN ANWENDUNG
+// ============================================================
+
+(async function initializeApplication() {
+
+    try {
+
+        // ======================================================
+        // EINZIGE SUPABASE-VERBINDUNG
+        // ======================================================
+
+        const connected =
+            initializeSupabase();
+
+
+        if (!connected) {
+
+            return;
+        }
+
+
+        // ======================================================
+        // TURNIERDATEN LADEN
+        // ======================================================
+
+        await loadTournamentData();
+
+
+        // ======================================================
+        // SCORE-INTERFACE INITIALISIEREN
+        // ======================================================
+
+        clearScoreInterface();
+
+
+        // ======================================================
+        // NEWS WERDEN ERST BEIM ÖFFNEN GELADEN
+        // ======================================================
+
+
+        showStatus(
+            "Turnierdaten erfolgreich geladen.",
+            false
+        );
+
+
+        console.log(
+            "Anwendung vollständig initialisiert.",
+            {
+                supabase:
+                    SUPABASE_URL,
+
+                rounds:
+                    tournamentRounds,
+
+                courses:
+                    tournamentCourses,
+
+                players:
+                    tournamentPlayers,
+
+                flights:
+                    tournamentFlights,
+
+                scores:
+                    tournamentScores
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Fehler beim Start der Anwendung:",
+            error
+        );
+
+
+        showStatus(
+            error && error.message
+                ? error.message
+                : "Die Anwendung konnte nicht gestartet werden.",
+            true
+        );
+
+    }
+
+})();
+
+</script>
+
+</body>
+
+</html>
