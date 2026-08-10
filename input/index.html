@@ -1955,7 +1955,7 @@ async function determineNextHoleForFlight() {
                 flightPlayers.every(
                     player =>
                         getTournamentScore(
-                            round.id,
+                            round.round_number,
                             hole,
                             player.id
                         ) !== null
@@ -1971,7 +1971,7 @@ async function determineNextHoleForFlight() {
                             round.round_number,
 
                         roundId:
-                            round.id,
+                            round.round_number,
 
                         hole:
                             hole
@@ -2389,7 +2389,7 @@ function renderCurrentHole() {
                 currentRound.round_number,
 
             roundId:
-                currentRound.id,
+                currentRound.round_number,
 
             course:
                 currentCourse?.course_name,
@@ -2557,7 +2557,7 @@ function renderPlayerScoreInputs() {
 
             const savedScore =
                 getTournamentScore(
-                    currentRound.id,
+                    currentRound.round_number,
                     currentHoleNumber,
                     player.id
                 );
@@ -2977,7 +2977,7 @@ async function saveCurrentHoleScores() {
         scoresToSave.push(
             {
                 round:
-                    currentRound.id,
+                    currentRound.round_number,
 
                 hole:
                     currentHoleNumber,
