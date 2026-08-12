@@ -566,9 +566,13 @@ body {
 
 .scorecard-scroll {
     width: 100%;
-
     overflow-x: auto;
     overflow-y: hidden;
+
+    /* Horizontales Scrollen auf Mobilgeräten */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
 }
 
 
