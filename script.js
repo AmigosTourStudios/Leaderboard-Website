@@ -3341,7 +3341,6 @@ function renderRoundSelector() {
 /* =========================================================
    RESULTS RENDERN
    ========================================================= */
-
 function renderResults() {
 
     if (
@@ -3406,6 +3405,20 @@ function renderResults() {
     }
 
 
+    // =========================================================
+    // HORIZONTALE SCROLLPOSITIONEN MERKEN
+    // =========================================================
+
+    const previousScrollPositions =
+        [...resultsContainer.querySelectorAll(
+            ".scorecard-scroll"
+        )]
+            .map(
+                scrollElement =>
+                    scrollElement.scrollLeft
+            );
+
+
     resultsContainer.innerHTML =
         "";
 
@@ -3456,6 +3469,35 @@ function renderResults() {
                     player,
                     round
                 );
+
+        }
+    );
+
+
+    // =========================================================
+    // HORIZONTALE SCROLLPOSITIONEN WIEDERHERSTELLEN
+    // =========================================================
+
+    const newScrollElements =
+        resultsContainer.querySelectorAll(
+            ".scorecard-scroll"
+        );
+
+
+    newScrollElements.forEach(
+        (
+            scrollElement,
+            index
+        ) => {
+
+            if (
+                previousScrollPositions[index] !== undefined
+            ) {
+
+                scrollElement.scrollLeft =
+                    previousScrollPositions[index];
+
+            }
 
         }
     );
